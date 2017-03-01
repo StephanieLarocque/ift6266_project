@@ -14,6 +14,7 @@ from lasagne.layers import Conv2DLayer
 from lasagne.layers import Deconv2DLayer #same as TransposeConv2DLayer
 from lasagne.layers import Pool2DLayer
 from lasagne.layers import Upscale2DLayer
+from lasagne.layers import DenseLayer
 
 #Import nonlinearities
 from lasagne.nonlinearities import rectify
@@ -32,19 +33,18 @@ class generator(Model):
         pass
 
     def build_network(self, input_var,
-                    #Maybe input_var not necessary because its random noise
+                    #Maybe input_var not necessary because it's random noise
                     conv_before_pool=[1,1,1,1],
                     n_filters = 64, #number of filters before final deconv layer
                     filter_size = 3
                     ):
 
-        self.conv_before_pool = conv_before_pool
-        self.n_filters = n_filters
-        self.filter_size = filter_size
-        #n_block = len(conv_before_pool)
+        # self.conv_before_pool = conv_before_pool
+        # self.n_filters = n_filters
+        # self.filter_size = filter_size
         assert len(conv_before_pool)==4 #to recover the right image size
         assert min(conv_before_pool)>=1 #must have at least 1 convolution in each block
-        n_block = 4
+        n_block = len(conv_before_pool)
 
         net = {}
         #input_var = ? will be (for example) a 100x1 latent variables
@@ -89,8 +89,51 @@ class discriminator(Model):
     def __init__(self):
         pass
 
-    def build_network(self):
-        pass
+    def build_network(self, input_var,
+                conv_before_pool = [1,1,1,1],
+                n_filters = 64,
+                filter_size = 3,
+                n_units_dense_layer = 1024):
+
+        assert len(conv_before_pool)==4
+        n_block = len(conv_before_pool)
+        net = {}
+
+        net['input'] = InputLayer((None, 3, 32, 32), input_var)
+        incoming_layer = 'input'
+
+
+        for i in range(n_block):
+            n_conv = conv_before_pool[i]
+
+            for c in range(n_conv):
+                #Do we use deconv2d or simply conv2d ?
+                #Is there any difference?
+                #Its a transpose convolutionlayer...
+                net['conv'+str(i)+'_'+str(c)] = Conv2DLayer(net[incoming_layer],
+                            num_filters = n_filters*(2**i),
+                            filter_size = filter_size,
+                            pad = 'same')
+                incoming_layer = 'conv'+str(i)+'_'+str(c)
+
+            if i<n_block-1:
+                #Pooling layer
+                net['pool'+str(i)] = Pool2DLayer(net[incoming_layer],
+                                pool_size = 2)
+                incoming_layer = 'pool'+str(i)
+
+        #Add 1 dense layer
+        net['dense'] = DenseLayer(net[incoming_layer],
+                            num_units = n_units_dense_layer)
+        incoming_layer = 'dense'
+
+        #Last layer must have 1 units (binary classification)
+        net['last_layer'] = DenseLayer(net[incoming_layer], num_units = 1)
+        incoming_layer = 'last_layer'
+
+        #Softmax layer needed somehere
+
+        return net, incoming_layer
 
 
 

@@ -18,6 +18,8 @@ from lasagne.layers import DenseLayer
 
 #Import nonlinearities
 from lasagne.nonlinearities import rectify
+from lasagne.nonlinearities import softmax
+from lasagne.nonlinearities import sigmoid
 
 
 class Model(object):
@@ -93,7 +95,8 @@ class discriminator(Model):
                 conv_before_pool = [1,1,1,1],
                 n_filters = 64,
                 filter_size = 3,
-                n_units_dense_layer = 1024):
+                n_units_dense_layer = 1024,
+                out_nonlin = sigmoid):
 
         assert len(conv_before_pool)==4
         n_block = len(conv_before_pool)
@@ -128,7 +131,9 @@ class discriminator(Model):
         incoming_layer = 'dense'
 
         #Last layer must have 1 units (binary classification)
-        net['last_layer'] = DenseLayer(net[incoming_layer], num_units = 1)
+        net['last_layer'] = DenseLayer(net[incoming_layer],
+                            num_units = 1,
+                            nonlinearity = out_nonlin)
         incoming_layer = 'last_layer'
 
         #Softmax layer needed somehere

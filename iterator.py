@@ -26,9 +26,10 @@ class Iterator(object):
         self.root_path = root_path
         self.img_path = os.path.join(sys.path[0],root_path, img_path)
         self.caps_path = os.path.join(sys.path[0],root_path, caps_path)
+        self.imgs = glob.glob(self.img_path + "/*.jpg")#Name of all of the imgs
         self.batch_size = batch_size
         self.batch_idx = 0
-        self.imgs = glob.glob(self.img_path + "/*.jpg")#Name of all of the imgs
+        self.n_batches = int(len(self.imgs)/self.batch_size)
         self.extract_center = extract_center #Remove center from image
         self.load_caption = load_caption
 

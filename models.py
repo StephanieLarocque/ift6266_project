@@ -84,7 +84,7 @@ class generator(Model):
                         pad = 'same')
         incoming_layer = 'finalconv'
 
-        return net, incoming_layer
+        return [net[l] for l in [incoming_layer]] #TODO : voir si ca fonctionne meme sans ce truc
 
 
 class discriminator(Model):
@@ -138,7 +138,7 @@ class discriminator(Model):
 
         #Softmax layer needed somehere
 
-        return net, incoming_layer
+        return [net[l] for l in [incoming_layer]] #TODO : voir si ca fonctionne meme sans ce truc
 
 
 

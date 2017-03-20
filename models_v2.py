@@ -13,7 +13,7 @@ import theano.tensor as T
 import numpy as np
 
 #Import layers from lasagne
-from lasagne.layers import InputLayer, DropoutLayer, ReshapeLayer
+from lasagne.layers import InputLayer, DropoutLayer, ReshapeLayer, batch_norm
 from lasagne.layers import NonlinearityLayer, DimshuffleLayer, ConcatLayer
 from lasagne.layers import Layer
 from lasagne.layers import Conv2DLayer
@@ -182,7 +182,11 @@ class discriminator(Model):
                             num_filters = n_filters*(2**i),
                             filter_size = filter_size,
                             pad = 'same')
+                
                 incoming_layer = 'conv'+str(i)+'_'+str(c)
+                
+                net['bn'+str(i)+'_'+str(c)] = batch_norm(net[incoming_layer])
+                incoming_layer = 'bn'+str(i)+'_'+str(c)
 
             if i<n_block-1:
                 #Pooling layer

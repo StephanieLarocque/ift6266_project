@@ -10,22 +10,28 @@ import pickle as pkl
 class Iterator(object):
 
 
-    def __init__(self, which_set, root_path="datasets\inpainting",
+    def __init__(self, which_set, root_path="datasets/inpainting",
                  #img_path = 'train2014',
                  caps_path='dict_key_imgID_value_caps_train_and_valid.pkl',
                  batch_size=128, nb_sub=None, extract_center=True, load_caption=True):
-        image_path=''
+        
         if which_set=='train':
             img_path = 'train2014'
         elif which_set=='valid' or which_set=='val':
-            img_path = 'valid2014'
+            img_path = 'val2014'
         else:
             raise ValueError('Set must be train or valid')
 
 
-        self.root_path = root_path
-        self.img_path = os.path.join(sys.path[0],root_path, img_path)
-        self.caps_path = os.path.join(sys.path[0],root_path, caps_path)
+        self.root_path = os.path.join(sys.path[1],root_path)
+        #from home : sys.path[0] ??
+        
+        #self.img_path = os.path.join(sys.path[0],root_path, img_path)
+        #self.caps_path = os.path.join(sys.path[0],root_path, caps_path)
+        
+        self.img_path = os.path.join(self.root_path, img_path)
+        self.caps_path = os.path.join(self.root_path, caps_path)
+        
         self.imgs = glob.glob(self.img_path + "/*.jpg")#Name of all of the imgs
         self.batch_size = batch_size
         self.batch_idx = 0
@@ -108,4 +114,4 @@ class Iterator(object):
 
 if __name__=='__main__':
 
-    train_iter = Iterator(batch_size = 100)
+    train_iter = Iterator(which_set='train',batch_size = 100)

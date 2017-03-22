@@ -13,7 +13,8 @@ import theano.tensor as T
 import numpy as np
 
 #Import layers from lasagne
-from lasagne.layers import InputLayer, DropoutLayer, ReshapeLayer, batch_norm
+from lasagne.layers import InputLayer, DropoutLayer, ReshapeLayer
+from lasagne.layers import BatchNormLayer , batch_norm
 from lasagne.layers import NonlinearityLayer, DimshuffleLayer, ConcatLayer
 from lasagne.layers import Layer
 from lasagne.layers import Conv2DLayer
@@ -181,12 +182,18 @@ class discriminator(Model):
                 net['conv'+str(i)+'_'+str(c)] = Conv2DLayer(net[incoming_layer],
                             num_filters = n_filters*(2**i),
                             filter_size = filter_size,
-                            pad = 'same')
-                
+                            pad = 'same',
+                            nonlinearity = None)
                 incoming_layer = 'conv'+str(i)+'_'+str(c)
-                
-                net['bn'+str(i)+'_'+str(c)] = batch_norm(net[incoming_layer])
+
+                net['bn'+str(i)+'_'+str(c)] = BatchNormLayer(net[incoming_layer])
                 incoming_layer = 'bn'+str(i)+'_'+str(c)
+
+
+                net['nonlin'+str(i)+'_'+str(c)]=NonlinearityLayer(
+                            net[incoming_layer],
+                            nonlinearity = rectify)
+                incoming_layer = 'nonlin'+str(i)+'_'+str(c)
 
             if i<n_block-1:
                 #Pooling layer
@@ -254,8 +261,22 @@ class discriminator_over_generator(Model):
                             filter_size = filter_size,
                             pad = 'same',
                             W = D_net['conv'+str(i)+'_'+str(c)].W,
-                            b = D_net['conv'+str(i)+'_'+str(c)].b)
+                            b = D_net['conv'+str(i)+'_'+str(c)].b,
+                            nonlinearity = None)
                 incoming_layer = 'conv'+str(i)+'_'+str(c)
+
+
+                net['bn'+str(i)+'_'+str(c)] = BatchNormLayer(net[incoming_layer],
+                            beta=D_net['bn'+str(i)+'_'+str(c)].beta,
+                            gamma=D_net['bn'+str(i)+'_'+str(c)].gamma)
+                incoming_layer = 'bn'+str(i)+'_'+str(c)
+
+                net['nonlin'+str(i)+'_'+str(c)]=NonlinearityLayer(
+                            net['bn'+str(i)+'_'+str(c)],
+                            nonlinearity = rectify)
+                incoming_layer = 'nonlin'+str(i)+'_'+str(c)
+
+
 
             if i<n_block-1:
                 #Pooling layer

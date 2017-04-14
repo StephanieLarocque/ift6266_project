@@ -86,7 +86,21 @@ class AE(Model):
 
         #Decoder (Upscaling + Conv Layers)
 
-
+        for i in range(n_block-1,-1,-1):
+            net['up'+str(i)] = Upscale2DLayer(net[incoming_layer], scale_factor = pool_factor)
+	    incoming_layer = 'up'+str(i)
+            
+	    for c in range(n_conv-1,-1,-1): #c-th convolution for the i-th block
+		net['conv'+str(i)+'_'+str(c)] = Conv2DLayer(net[incoming_layer],
+		            #n_filters increases as size of image decreases
+			    num_filters = n_filters * pool_factor**i,
+			    filter_size = filter_size,
+			    nonlinearity = rectify,
+			    pad='same')
+                incoming_layer = 'conv'+str(i)+'_'+str(c)
+                
+        
+	 
 
         
        

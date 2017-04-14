@@ -29,63 +29,75 @@ class Model(object):
 
 
 class AE(Model):
-	def __init__(self):
-		pass
+    def __init__(self):
+	pass
 	
-	def build_network(self, input_var,
-		conv_before_pool=[2,2],
-		n_filters = 32,
-		code_size = 100,
-		filter_size = 3,
-		pool_factor = 2
-		):
+    def build_network(self, input_var,
+                      conv_before_pool=[2,2],
+		      n_filters = 32,
+		      code_size = 100,
+		      filter_size = 3,
+		      pool_factor = 2):
 		
-		self.conv_before_pool = conv_before_pool
-		self.code_size = code_size
-		self.n_filters = n_filters
-		n_block = len(conv_before_pool)
+	self.conv_before_pool = conv_before_pool
+	self.code_size = code_size
+	self.n_filters = n_filters
+	n_block = len(conv_before_pool)
+	
+	net={}
+	net['input'] = InputLayer((None, 3, 32, 32), input_var)
+	incoming_layer = 'input'
 		
-		net={}
-		net['input'] = InputLayer((None, 3, 32, 32), input_var)
-		incoming_layer = 'input'
+	#Encoder (Conv + Pooling Layers)
+	for i in range(n_block):
+	    n_conv = conv_before_pool[i]
 		
-		#Encoder (Conv + Pooling Layers)
-		for i in range(n_block):
-			n_conv = conv_before_pool[i]
-		
-			for c in range(n_conv): #c-th convolution for the i-th block
-				net['conv'+str(i)+'_'+str(c)] = Conv2DLayer(net[incoming_layer],
-					#n_filters increases as size of image decreases
-					num_filters = n_filters * pool_factor**i,
-					filter_size = filter_size,
-					nonlinearity = rectify,
-					pad='same')
+	    for c in range(n_conv): #c-th convolution for the i-th block
+		net['conv'+str(i)+'_'+str(c)] = Conv2DLayer(net[incoming_layer],
+		            #n_filters increases as size of image decreases
+			    num_filters = n_filters * pool_factor**i,
+			    filter_size = filter_size,
+			    nonlinearity = rectify,
+			    pad='same')
                 incoming_layer = 'conv'+str(i)+'_'+str(c)
                 
                 
-		net['pool'+str(i)] = Pool2DLayer(net[incoming_layer], pool_size = pool_factor)
-		incoming_layer = 'pool'+str(i)
+	    net['pool'+str(i)] = Pool2DLayer(net[incoming_layer], pool_size = pool_factor)
+	    incoming_layer = 'pool'+str(i)
             
-        	#Encoder (Reshape + Dense Layer)
+        #Encoder (Reshape + Dense Layer)
         net['reshape_enc'] = ReshapeLayer(net[incoming_layer],
         	shape=([0],-1))
         incoming_layer = 'reshape_enc'
+        n_units_before_dense = net[incoming_layer].output_shape[1]
         
-        
-        
-        
-        #Code 
+        #Code layer
+        net['code_dense'] = DenseLayer(net[incoming_layer], num_units = code_size)
+        incoming_layer = 'code_dense'
+
         #Decoder (Dense + Reshape Layer)
+        net['dense_up'] = DenseLayer(net[incoming_layer], num_units = n_units_before_dense)
+        incoming_layer = 'dense_up'
+        
+        net['reshape_dec'] = ReshapeLayer(net[incoming_layer],
+                shape=([0],-1,n_filters/(2**n_block), n_filters/(2**n_block) ))
+        incoming_layer = 'reshape_dec'
+
+
         #Decoder (Upscaling + Conv Layers)
+
+
+
+        
        
-       
-       
+        return net
             
 if __name__ == '__main__':
-	input_var = T.tensor4('input')
-	AE.buid_network(input_var)
-	
-		
+    input_var = T.tensor4('input')
+    ae=AE().build_network(input_var)
+    layers = lasagne.layers.get_all_layers(ae)
+    for l in layers :
+        print l, ae[l], ae[l].output_shape
 		
 	
 	

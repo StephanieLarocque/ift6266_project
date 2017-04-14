@@ -34,10 +34,10 @@ class AE(Model):
 	
     def build_network(self, input_var,
                       conv_before_pool=[2,2],
-		      n_filters = 32,
-		      code_size = 100,
-		      filter_size = 3,
-		      pool_factor = 2):
+                      n_filters = 32,
+                      code_size = 100,
+                      filter_size = 3,
+                      pool_factor = 2):
 		
 	self.conv_before_pool = conv_before_pool
 	self.code_size = code_size
@@ -60,6 +60,8 @@ class AE(Model):
 			    nonlinearity = rectify,
 			    pad='same')
                 incoming_layer = 'conv'+str(i)+'_'+str(c)
+                net['bn'+str(i)+'_'+str(c)] = batch_norm(net[incoming_layer])
+                incoming_layer = 'bn'+str(i)+'_'+str(c)
                 
                 
 	    net['pool'+str(i)] = Pool2DLayer(net[incoming_layer], pool_size = pool_factor)
@@ -87,24 +89,32 @@ class AE(Model):
         #Decoder (Upscaling + Conv Layers)
 
         for i in range(n_block-1,-1,-1):
-            net['up'+str(i)] = Upscale2DLayer(net[incoming_layer], scale_factor = pool_factor)
-	    incoming_layer = 'up'+str(i)
+            net['upscale'+str(i)] = Upscale2DLayer(net[incoming_layer], scale_factor = pool_factor)
+	    incoming_layer = 'upscale'+str(i)
             
 	    for c in range(n_conv-1,-1,-1): #c-th convolution for the i-th block
-		net['conv'+str(i)+'_'+str(c)] = Conv2DLayer(net[incoming_layer],
+                net['upconv'+str(i)+'_'+str(c)] = Conv2DLayer(net[incoming_layer],
 		            #n_filters increases as size of image decreases
 			    num_filters = n_filters * pool_factor**i,
 			    filter_size = filter_size,
 			    nonlinearity = rectify,
 			    pad='same')
-                incoming_layer = 'conv'+str(i)+'_'+str(c)
+                incoming_layer = 'upconv'+str(i)+'_'+str(c)
+                net['bn'+str(i)+'_'+str(c)] = batch_norm(net[incoming_layer])
+                incoming_layer = 'bn'+str(i)+'_'+str(c)
+            
+        net['last_layer'] = Conv2DLayer(net[incoming_layer],
+                num_filters = 3,
+                filter_size = 1,
+                pad='same')
+        incoming_layer = 'last_layer'
                 
         
 	 
 
         
        
-        return net
+        return net, incoming_layer
             
 if __name__ == '__main__':
     input_var = T.tensor4('input')

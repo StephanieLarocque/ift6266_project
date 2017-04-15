@@ -83,7 +83,7 @@ class AE_contour2center(Model):
         incoming_layer = 'dense_up'
         
         net['reshape_dec'] = ReshapeLayer(net[incoming_layer],
-                shape=([0],-1,n_filters/(2**n_block), n_filters/(2**n_block) ))
+                shape=([0],-1,n_filters/(2**(n_block-1)), n_filters/(2**(n_block-1)) ))
         incoming_layer = 'reshape_dec'
 
 

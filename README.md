@@ -30,7 +30,9 @@ Here are the results for a subset of the validation set after 115 epochs :
 ![CNN basic results](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/cnn_basic_results.png)
 Top = Input of the model, Middle = Ground truth, Bottom = Generated image
 
-These are, unsuprisingly, blurry. 
+These are, unsuprisingly, blurry. Furthermore, the colors do not always match with the border (maybe because of batch norm with mode collape?). Using a GAN setup could help, even more if the whole images (border+center) are given to the discriminator : the colors would maybe match more the border. Using a GAN (adversarial loss) can also help to make the generated images sharper.
+
+
 
 
 ### Next steps

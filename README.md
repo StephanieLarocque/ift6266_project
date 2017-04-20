@@ -22,7 +22,7 @@ So I have built a GAN model that has 3 attributes:
 
 My GAN model doesn't perform well. Since I thought my Jupyter Notebook was using GPU, but wasn't, I had problems because it just freezed my screen and everything when I tried to run 1 epoch. I finally got my GAN to "train", but NaNs occur after 2 or 3 epochs - and therefor *very* bad results for the generator
 
-![My image](StephanieLarocque.github.com/ift6266_project/tree/master/blog_img_and_results/gan_crazy_results.png)
+![Gan crazy results](https://github.com/StephanieLarocque/ift6266_project/blog_img_and_results/gan_crazy_results.png)
 
 
 https://github.com/StephanieLarocque/ift6266_project/tree/master/blog_img_and_results/gan_crazy_results.png

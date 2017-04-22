@@ -25,10 +25,10 @@ The results looks lot like without captions though.
 ** insert 1 cap
 ** insert 5 cap
 
-###
+### Next steps
+- Try using a GRU/LSTM layer instead of a Dense Layer (and then no need to have a +-7500 vector)
 
-bla bla bla
-==========
+
 
 
 # April 15th : Basic Results
@@ -70,7 +70,7 @@ These are, unsuprisingly, blurry. Furthermore, the colors do not always match wi
 
 
 
-## March 20th : Gan abstract inpainting
+# March 20th : Gan abstract inpainting
 
 My GAN model doesn't perform well. Since I thought my Jupyter Notebook was using GPU, but wasn't, I had problems because it just freezed my screen and everything when I tried to run 1 epoch. I finally got my GAN to "train", but NaNs occur after 2 or 3 epochs - and therefor *very* bad results for the generator.
 
@@ -81,7 +81,7 @@ My GAN model doesn't perform well. Since I thought my Jupyter Notebook was using
 #### To do :
 Maybe directly train using a DCGAN or Plug-and-Play network.
 
-##  March 15th : First try implementing GAN
+#  March 15th : First try implementing GAN
 
 These last weeks, I tried to implement a GAN (in order to extend it, once it works, to a conditional gan, for example)
 #### Problem : 

@@ -6,6 +6,10 @@ Blog link : https://stephanielarocque.github.io/ift6266_project/
 
 I tried implementing a joint loss L = a * Lrec + (1-a) * Ladv, where Lrec is the reconstruction loss used in previous model and Ladv is an adversarial loss obtained by a discriminator that takes the generated images and the true images as input. After a couple of minibatches, the discriminator loss (Ladv) goes to NaN, so that stops the training. I tried a lot of things to avoid that problem, without success.
 
+The purpose of this new joint loss is to take advantage of both GANs and L2 reconstruction :
+- L2 reconstruction gives a smooth border and rights colors, but is very blurry
+- GANs give sharp results but sometimes abstract details and missing smooth borders.
+
 ### 1. Label smoothing
 As proposed in a few papers, labels smoothing for the true images is a good way of preventing the discriminator to have a bad gradient. Instead of using:
 loss_fake = binary_crossentropy(fake_images, 0)
@@ -21,13 +25,17 @@ However, the NaN problem still occured.
 - Strided convolution : I also tried Strided convolution instead of pooling layers, but that didn't help much.
 - LeakyRectify : Use of Leaky relu instead of relu didn't change training enough neither, for different values of leakiness.
 
-### 3. Learning rates
+### 3. Learning rates 
 I tried different learning rates. A smaller learning rate (~0.0001) for the discriminator than generator's learning rate (~0.01) was needed to obtain some results (a few epochs) before NaNs.
 
 ### 4. Alternating training set-up
 I also tried different training set-ups for alternating SGD (between 1 and 10 steps for the generator for 1 step of the discriminator). Even if some papers say that the discriminator might need more training, my own discriminator just become too confident when trained more than the generator, so the output of discriminator is too close to 0 or 1.
 
-### 5. 
+### 5. Loss functions 
+Explain which loss function used for each model
+
+### 6. Whole image discriminator
+Instead of using only the inpainting image as input to the discriminator, I reconstructed the whole image (contour + true/generated center). I thought that it would be easy for the discriminator to understand that the colors must match and the transition must be smooth between the inpainting and the contour with that strategy. However, the discriminator instead got too confident (again..) and output NaN.
 
 
 # April 20th : Adding captions

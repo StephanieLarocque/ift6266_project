@@ -40,8 +40,15 @@ I also tried different training set-ups for alternating SGD (between 1 and 10 st
 ### 5. Loss functions 
 Explain which loss function used for each model
 
-### 6. Whole image discriminator
+### 6. Noise on the true image given to the discriminator
+
+
+
+### 7. Whole image discriminator
 Instead of using only the inpainting image as input to the discriminator, I reconstructed the whole image (contour + true/generated center). I thought that it would be easy for the discriminator to understand that the colors must match and the transition must be smooth between the inpainting and the contour with that strategy. However, the discriminator instead got too confident (again..) and output NaN.
+
+### 8. Pretraining the generator only on the reconstruction loss
+
 
 
 # April 20th : Adding captions

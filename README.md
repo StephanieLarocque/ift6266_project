@@ -18,11 +18,11 @@ The purpose of this new joint loss is to take advantage of both GANs and L2 reco
 
 ### 1. Label smoothing
 As proposed in a few papers, labels smoothing for the true images is a good way of preventing the discriminator to have a bad gradient. Instead of using:
-loss_fake = binary_crossentropy(fake_images, 0)
-loss_true = binary_crossentropy(true_images, 1),
+- loss_fake = binary_crossentropy(fake_images, 0)
+- loss_true = binary_crossentropy(true_images, 1),
 I try using:
-loss_fake = binary_crossentropy(fake_images, 0)
-loss_true = binary_crossentropy(true_images, 0.9)
+- loss_fake = binary_crossentropy(fake_images, 0)
+- loss_true = binary_crossentropy(true_images, 0.9)
 to prevent the discriminator to be too confident on the real images.
 However, the NaN problem still occured.
 

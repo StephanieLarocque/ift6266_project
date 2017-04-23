@@ -185,7 +185,7 @@ class AE_contour2center(Model):
 
         #inputs and targets already transposed for computation
         #must be retranspose for visualization
-        if inputs.shape[0]==subset:
+        if np.shape(inputs[0])==subset:
             indices = [i for i in range(subset)]
         else:
             indices = np.random.randint(inputs.shape[0], size=subset)
@@ -334,35 +334,38 @@ class AE_contour2center_captions(Model):
 
 
 
-    def compile_theano_functions(self, learning_rate = 0.001):
+    def compile_theano_functions(self, learning_rate = 0.001, comp_train=True, comp_valid=True, comp_get = True):
 
 
         input_var = self.input_var#T.tensor4('input img bx3x64x64')
         target_var = T.tensor4('inpainting target')
         captions_var = self.captions_var#T.matrix('captions var')
+        
+        
+        if comp_train:
+            print "Defining and compiling train functions"
 
-        print "Defining and compiling train functions"
+            pred_img = lasagne.layers.get_output(self.net )
+            loss = self.get_loss(pred_img, target_var)
+            params = lasagne.layers.get_all_params(self.net , trainable=True)
+            updates = lasagne.updates.adam(loss, params, learning_rate = learning_rate)
+            train_fn = theano.function([input_var,captions_var,target_var], loss, updates = updates,
+                                        allow_input_downcast=True)
+            self.train_fn = train_fn
 
-        pred_img = lasagne.layers.get_output(self.net )
-        loss = self.get_loss(pred_img, target_var)
-        params = lasagne.layers.get_all_params(self.net , trainable=True)
-        updates = lasagne.updates.adam(loss, params, learning_rate = learning_rate)
-        train_fn = theano.function([input_var,captions_var,target_var], loss, updates = updates,
-                                    allow_input_downcast=True)
-        self.train_fn = train_fn
+        if comp_valid:
+            print "Defining and compiling valid functions"
 
+            valid_pred_imgs = lasagne.layers.get_output(self.net ,deterministic=True)
+            valid_loss = self.get_loss(valid_pred_imgs, target_var)
+            valid_fn = theano.function([input_var, captions_var, target_var], valid_loss, allow_input_downcast=True)
+            self.valid_fn = valid_fn
 
-        print "Defining and compiling valid functions"
+        if comp_get:
+            print 'Defining and compiling get_imgs function'
 
-        valid_pred_imgs = lasagne.layers.get_output(self.net ,deterministic=True)
-        valid_loss = self.get_loss(valid_pred_imgs, target_var)
-        valid_fn = theano.function([input_var, captions_var, target_var], valid_loss, allow_input_downcast=True)
-        self.valid_fn = valid_fn
-
-        print 'Defining and compiling get_imgs function'
-
-        self.get_imgs = theano.function([input_var,captions_var], lasagne.layers.get_output(self.net ,deterministic = True),
-                          allow_input_downcast=True)
+            self.get_imgs = theano.function([input_var,captions_var], lasagne.layers.get_output(self.net ,deterministic = True),
+                              allow_input_downcast=True)
         print "Done"
 
     def extract_batch(self, batch):

@@ -26,7 +26,7 @@ import autoencoder_model as ae_model
 import PIL.Image as Image
 from matplotlib import pyplot as plt
 from matplotlib import colors
-get_ipython().magic(u'matplotlib inline')
+
 
 
 _FLOATX = config.floatX
@@ -49,7 +49,7 @@ load_caption = True
 #nb_discriminator_steps = 2
 
 #Model Hyperparameters
-conv_before_pool=[2,2]
+conv_before_pool=[2,2,2]
 n_filters = 32                      
 code_size = 750
 filter_size = 3
@@ -62,14 +62,14 @@ pool_factor = 2
 #######################
 # Saving path and stuff
 ######################
-exp_name = 'AE_notebook'
+exp_name = 'AE_5caps_'
 exp_name += '_lr='+str(learning_rate)
 exp_name += '_wd='+str(weight_decay)
 exp_name += '_bs='+str(batch_size)
 exp_name += '_conv='+str(conv_before_pool)
 exp_name += '_nfilt='+str(n_filters)
 exp_name += '_code='+str(code_size)
-exp_name += '_caps'
+
 
 
 
@@ -137,10 +137,6 @@ def one_hot(caps, vocab_size = vocab_size):
     
     return caps_onehot
     
-
-
-# In[ ]:
-
 def one_hot_all_captions(caps, vocab_size = vocab_size):
     #print 'size caps', np.shape(caps)
     caps = np.array(caps)
@@ -151,7 +147,7 @@ def one_hot_all_captions(caps, vocab_size = vocab_size):
     caps_onehot = np.zeros(shape =(n_samples, vocab_size+2), dtype=np.float32)
     for i in range(n_samples):
         
-        caps_i_onehot = np.zeros(shape=(len(caps[i]), vocab_size+2 )), dtype=np.float32)
+        caps_i_onehot = np.zeros(shape=(len(caps[i]), vocab_size+2 ), dtype=np.float32)
         
         for j in range(len(caps[i])):
             
@@ -163,6 +159,8 @@ def one_hot_all_captions(caps, vocab_size = vocab_size):
     return caps_onehot
     
 
+    
+
 
 # In[18]:
 
@@ -171,7 +169,7 @@ def extract_batch(batch):
     
     inputs = np.transpose(inputs, (0,3,1,2))
     targets = np.transpose(targets, (0,3,1,2))
-    caps_1hot =one_hot(caps)
+    caps_1hot =one_hot_all_captions(caps)
     
     return inputs, targets, caps_1hot
 
@@ -263,118 +261,12 @@ print "Done"
 
 
 
-# In[23]:
-
-get_imgs = theano.function([ae_input_var, ae_captions_var], lasagne.layers.get_output(ae[last_layer],
-                                deterministic = True), allow_input_downcast=True)
-
-
-# In[ ]:
 
 
 
-
-# In[ ]:
-
-
-
-
-# In[24]:
-
-def show_true_fake(batch, subset = 1, title = ''):
-    inputs, targets, caps = batch #inputs and targets already transposed
-    
-    for i in range(subset):
-        idx = np.random.randint(inputs.shape[0])
-        print 'inputs shape', np.shape(inputs[idx:idx+1])
-        print 'caps shape', np.shape(caps[idx:idx+1])
-        fake_imgs = get_imgs(inputs[idx:idx+1], caps[idx:idx+1])
-        
-        target_img = np.transpose(targets[idx], (1,2,0))
-        fake_one = np.transpose(fake_imgs[0], (1,2,0))
-        
-        
-#         plt.imshow(contour)
-        plt.title('Ground truth vs predicted '+ title)
-        plt.imshow(target_img)
-        plt.figure()
-        plt.imshow(fake_one)
-        plt.figure()
-        plt.show()
-
-
-
-# In[25]:
-
-def test_and_plot(batch, subset=15, title = 'Ground truth, input var and generated image'):
-    inputs, targets, caps = batch
-    #inputs and targets already transposed for computation
-    #must be retranspose for visualization
-    if inputs.shape[0]==subset:
-        indices = [i for i in range(subset)]
-    else:
-        indices = np.random.randint(inputs.shape[0], size=subset)
-    plt.figure(dpi=subset*15)
-    plt.title(title)
-    for i in range(subset):
-
-        idx = indices[i]
-
-        fake_imgs = get_imgs(inputs[idx:idx+1], caps[idx:idx+1])
-
-        #True and generated center
-        target_center = np.transpose(targets[idx], (1,2,0))
-        fake_center = np.transpose(fake_imgs[0], (1,2,0))
-
-        #Contour 
-        input_contour = np.transpose(inputs[idx],(1,2,0))
-        
-        #True image (with center)
-        full_img=np.zeros((64,64,3))
-        np.copyto(full_img,input_contour)
-        full_img[16:48,16:48, :] = target_center
-
-        #Fake image (with generated center)
-        full_fake_img = np.zeros((64,64,3))
-        np.copyto(full_fake_img, input_contour)
-        full_fake_img[16:48,16:48, :] = fake_center
-
-
-        plot_image = np.concatenate((input_contour, full_img,full_fake_img), axis=0)
-        if i==0:
-            all_images = plot_image
-        else:
-            all_images = np.concatenate((all_images, plot_image), axis = 1)
-        #plt.imshow(plot_image)
-
-    plt.axis('off')
-    plt.imshow(all_images)  
-    plt.show()
-
-
-
-
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-
-
-
-# In[29]:
-
-plot_results_train = True
-plot_results_valid = True
-
-
-num_epochs = 100
-n_batches_train = 200
-n_batches_valid = 200
+#num_epochs = 100
+#n_batches_train = 200
+#n_batches_valid = 200
 
 
 # In[30]:
@@ -410,7 +302,7 @@ for epoch in range(num_epochs):
     # Train      
         
     for i, train_batch in enumerate(train_iter):
-        print i
+        
         if n_batches_train > 0 and i> n_batches_train:
             break
         
@@ -428,8 +320,6 @@ for epoch in range(num_epochs):
         
     #Add epoch results    
     err_train += [cost_train_epoch/n_batches_train]
-    if plot_results_train: #select random example from the last minibatch and plot it
-        test_and_plot(train_batch, title = 'TRAIN')
     
 
     # Validation
@@ -453,9 +343,7 @@ for epoch in range(num_epochs):
         cost_val_epoch += cost_val_batch
         
     
-    if plot_results_valid: #select random example from the last minibatch and plot it
-        test_and_plot(valid_batch, title = 'VALID')
-        
+    
     #Add epoch results 
     err_valid += [cost_val_epoch/n_batches_valid]
     
@@ -504,65 +392,5 @@ for epoch in range(num_epochs):
             print('Copying model and other training files to {}'.format(loadpath))
             copy_tree(savepath, loadpath)
         break 
-
-
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-
-
-
-# In[127]:
-
-batch_train = extract_stuff(train_iter[400:1000])
-        
-show_true_fake(batch_train, subset=20)
-
-
-# In[130]:
-
-batch_valid = extract_stuff(valid_iter[1500:2000])
-
-show_true_fake(batch_valid, subset = 20)
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
 
 

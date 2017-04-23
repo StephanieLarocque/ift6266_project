@@ -26,19 +26,19 @@ import autoencoder_model as ae_model
 import PIL.Image as Image
 from matplotlib import pyplot as plt
 from matplotlib import colors
-get_ipython().magic(u'matplotlib inline')
+#get_ipython().magic(u'matplotlib inline')
 
 
 # In[24]:
 
 #Training hyper-parameters
 
-learning_rate = 0.01
+learning_rate = 0.008
 weight_decay = 0
 num_epochs = 500
 max_patience = 100
 #data_augmentation={}
-SAVEPATH = 'save_models' 
+SAVEPATH = 'save_models'
 LOADPATH = 'load_models'
 batch_size = 512
 extract_center = True
@@ -47,8 +47,10 @@ load_caption = False
 
 #Model Hyperparameters
 conv_before_pool=[2,2,2]
-n_filters = 32                      
+n_filters = 32
 code_size = 500
+filter_size = 3
+pool_factor = 2
 
 
 #n_units_dense_layer = 10
@@ -68,8 +70,9 @@ exp_name += '_bs='+str(batch_size)
 exp_name += '_conv='+str(conv_before_pool)
 exp_name += '_nfilt='+str(n_filters)
 exp_name += '_code='+str(code_size)
-
-
+exp_name += '_nemax=' + str(num_epochs)
+exp_name += '_filtsize'+str(filter_size)
+exp_name += '_poolfac'+str(pool_factor)
 
 savepath=os.path.join(sys.path[1],SAVEPATH, exp_name)
 loadpath=os.path.join(sys.path[1],LOADPATH, exp_name)
@@ -129,14 +132,11 @@ ae_target_var = T.tensor4('inpainting target')
 print('Building AE model')
 ae, last_layer = ae_model.AE_contour2center().build_network(input_var = ae_input_var,
                                               conv_before_pool=conv_before_pool,
-                                              n_filters = n_filters,
-                                              code_size = code_size)
+                                                            n_filters = n_filters,filter_size=filter_size,
+                                                            code_size = code_size,pool_factor=pool_factor)
 
 
-# In[28]:
 
-valid_input_var = T.tensor4('valid input var')
-valid_target_var = T.tensor4('valid target var')
 
 
 # In[29]:
@@ -183,7 +183,7 @@ print 'Done'
 print "Defining and compiling valid functions"
 valid_pred_imgs = lasagne.layers.get_output(ae[last_layer],deterministic=True)
 
-valid_loss = T.mean(lasagne.objectives.squared_error(valid_pred_imgs, ae_target_var)) 
+valid_loss = T.mean(lasagne.objectives.squared_error(valid_pred_imgs, ae_target_var))
 
 
 
@@ -215,31 +215,31 @@ get_imgs = theano.function([ae_input_var], lasagne.layers.get_output(ae[last_lay
 
 # In[ ]:
 
-def show_true_fake(batch, subset = 1, title = ''):
-    inputs, targets, caps = batch #inputs and targets already transposed
-    
-    for i in range(subset):
-        idx = np.random.randint(inputs.shape[0])
-        fake_imgs = get_imgs(inputs[idx:idx+1])
-        
-        target_img = np.transpose(targets[idx], (1,2,0))
-        fake_one = np.transpose(fake_imgs[0], (1,2,0))
-        
-        
+#def show_true_fake(batch, subset = 1, title = ''):
+#    inputs, targets, caps = batch #inputs and targets already transposed
+#
+#    for i in range(subset):
+#        idx = np.random.randint(inputs.shape[0])
+#        fake_imgs = get_imgs(inputs[idx:idx+1])
+#
+#        target_img = np.transpose(targets[idx], (1,2,0))
+#        fake_one = np.transpose(fake_imgs[0], (1,2,0))
+
+
 #         plt.imshow(contour)
-        plt.title('Ground truth vs predicted '+ title)
-        plt.imshow(target_img)
-        plt.figure()
-        plt.imshow(fake_one)
-        plt.figure()
-        plt.show()
+#        plt.title('Ground truth vs predicted '+ title)
+#        plt.imshow(target_img)
+#        plt.figure()
+#        plt.imshow(fake_one)
+#        plt.figure()
+#        plt.show()
 
 
 
 # In[10]:
 
 # inputs_train, targets_train, caps_train = train_iter[:500]
-        
+
 # inputs_train = np.transpose(inputs_train,(0,3,1,2))
 # targets_train = np.transpose(targets_train, (0,3,1,2))
 # batch_train = inputs_train, targets_train, caps_train
@@ -253,21 +253,21 @@ def show_true_fake(batch, subset = 1, title = ''):
 #     for i in range(1):#, batch in enumerate(train_iter):
 
 #         #inputs, targets, caps = batch
-        
-        
-        
+
+
+
 #         cost_minibatch = ae_train_fn(inputs_train, targets_train)
 #         #print "     minibatch ", i, " cost : ", cost_minibatch
 #         cost_epoch += cost_minibatch
 #         if num_epochs<=5:
 #              show_true_fake(batch_train, title = 'TRAIN')
-        
+
 #     print 'cost at epoch ', ep, ' = ', cost_epoch
-    
-    
+
+
 
 #     print '--------------------------------------------'
-            
+
 
 
 # In[ ]:
@@ -277,16 +277,16 @@ def show_true_fake(batch, subset = 1, title = ''):
 
 # In[51]:
 
-inputs_valid, targets_valid, caps_valid = valid_iter[500:1000]
-        
-inputs_valid = np.transpose(inputs_valid,(0,3,1,2))
-targets_valid= np.transpose(targets_valid, (0,3,1,2))
-batch_valid = inputs_valid, targets_valid, caps_valid
+#inputs_valid, targets_valid, caps_valid = valid_iter[500:1000]
+
+#inputs_valid = np.transpose(inputs_valid,(0,3,1,2))
+#targets_valid= np.transpose(targets_valid, (0,3,1,2))
+#batch_valid = inputs_valid, targets_valid, caps_valid
 
 
 # In[52]:
 
-show_true_fake(batch_valid, subset = 10)
+#show_true_fake(batch_valid, subset = 10)
 
 
 # In[ ]:
@@ -310,7 +310,7 @@ def extract_stuff(batch):
     inputs, targets, caps = batch
     inputs = np.transpose(inputs, (0,3,1,2))
     targets = np.transpose(targets, (0,3,1,2))
-    
+
     return inputs, targets, caps
 
 
@@ -323,11 +323,6 @@ def extract_stuff(batch):
 
 plot_results_train = False
 plot_results_valid = False
-
-
-num_epochs = 1
-n_batches_train = 1
-n_batches_valid = 0
 
 
 # In[23]:
@@ -350,37 +345,37 @@ print "Start training"
 
 for epoch in range(num_epochs):
     #learn_step.set_value((learn_step.get_value()*0.99).astype(theano.config.floatX))
-    
+
     start_time = time.time()
     cost_train_epoch = 0
-    
-    # Train      
-        
+
+    # Train
+
     for i, train_batch in enumerate(train_iter):
         if n_batches_train > 0 and i> n_batches_train:
             break
-        
-        inputs_train, targets_train, caps_train = extract_stuff(train_batch)   
-        
+
+        inputs_train, targets_train, caps_train = extract_stuff(train_batch)
+
         cost_train_batch = cost_minibatch = ae_train_fn(inputs_train, targets_train)
-        
+
         #print i, 'training batch cost : ', cost_train_batch
 
-        #Update epoch results    
+        #Update epoch results
         cost_train_epoch += cost_train_batch
-        
-    #Add epoch results    
+
+    #Add epoch results
     err_train += [cost_train_epoch/n_batches_train]
-    
+
     if plot_results_train: #select random example from the last minibatch and plot it
-        show_true_fake(train_batch, title = 'TRAIN')
+        pass#show_true_fake(train_batch, title = 'TRAIN')
 
     # Validation
     cost_val_epoch = 0
-    
+
 
     for i, valid_batch in enumerate(valid_iter):
-        
+
         if n_batches_valid > 0 and i> n_batches_valid:
             break
 
@@ -393,14 +388,14 @@ for epoch in range(num_epochs):
 
         #Update epoch results
         cost_val_epoch += cost_val_batch
-        
-    
+
+
     if plot_results_valid: #select random example from the last minibatch and plot it
-        show_true_fake(valid_batch, title = 'VALID')
-        
-    #Add epoch results 
+        pass#show_true_fake(valid_batch, title = 'VALID')
+
+    #Add epoch results
     err_valid += [cost_val_epoch/n_batches_valid]
-    
+
 
     #Print results (once per epoch)
     out_str = "EPOCH %i: Avg cost train %f, cost val %f, took %f s"
@@ -410,14 +405,14 @@ for epoch in range(num_epochs):
                          #acc_valid[epoch],
                          time.time()-start_time)
     print out_str
-   
-    
+
+
 
     # Early stopping and saving stuff
-    
+
     with open(os.path.join(savepath, "ae_output.log"), "a") as f:
         f.write(out_str + "\n")
-        
+
     if epoch == 0:
         best_err_valid = err_valid[epoch]
     elif epoch > 1 and err_valid[epoch] < best_err_valid:
@@ -439,13 +434,13 @@ for epoch in range(num_epochs):
                  *lasagne.layers.get_all_param_values(ae[last_layer]))
         np.savez(os.path.join(savepath , "ae_errors_last.npz"),
                  err_train=err_train, err_valid=err_valid)
-        
+
     # Finish training if patience has expired or max nber of epochs reached
     if patience == max_patience or epoch == num_epochs-1:
         if savepath != loadpath:
             print('Copying model and other training files to {}'.format(loadpath))
             copy_tree(savepath, loadpath)
-        break 
+        break
 
 
 
@@ -460,10 +455,6 @@ for epoch in range(num_epochs):
 
 
 
-# In[ ]:
-
-
-
 
 # In[ ]:
 
@@ -471,56 +462,3 @@ for epoch in range(num_epochs):
 
 
 # In[ ]:
-
-
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-
-
-
-# In[21]:
-
-num_epochs = 10
-for i in range(num_epochs):
-    
-    cost = ae_train_fn(center_train_batch)
-    print 'cost', i, ' = ', cost
-    
-    if num_epochs<=10:
-        show_true_fake(center_train_batch)
-
-    print '--------------------------------------------'
-            
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-
-

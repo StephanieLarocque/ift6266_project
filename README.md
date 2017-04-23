@@ -2,8 +2,35 @@
 
 Blog link : https://stephanielarocque.github.io/ift6266_project/
 
+# April 23th : NaNs instead of GANs
 
-## April 22th : Adding captions
+I tried implementing a joint loss L = a * Lrec + (1-a) * Ladv, where Lrec is the reconstruction loss used in previous model and Ladv is an adversarial loss obtained by a discriminator that takes the generated images and the true images as input. After a couple of minibatches, the discriminator loss (Ladv) goes to NaN, so that stops the training. I tried a lot of things to avoid that problem, without success.
+
+### 1. Label smoothing
+As proposed in a few papers, labels smoothing for the true images is a good way of preventing the discriminator to have a bad gradient. Instead of using:
+loss_fake = binary_crossentropy(fake_images, 0)
+loss_true = binary_crossentropy(true_images, 1),
+I try using:
+loss_fake = binary_crossentropy(fake_images, 0)
+loss_true = binary_crossentropy(true_images, 0.9)
+to prevent the discriminator to be too confident on the real images.
+However, the NaN problem still occured.
+
+### 2. Architecture changes for discriminator
+- Average Pooling : I changed any max-pooling layer in my discriminator for an average-pooling layer to prevent too small/sparse gradient, but that didn't change the NaN problem. 
+- Strided convolution : I also tried Strided convolution instead of pooling layers, but that didn't help much.
+- LeakyRectify : Use of Leaky relu instead of relu didn't change training enough neither, for different values of leakiness.
+
+### 3. Learning rates
+I tried different learning rates. A smaller learning rate (~0.0001) for the discriminator than generator's learning rate (~0.01) was needed to obtain some results (a few epochs) before NaNs.
+
+### 4. Alternating training set-up
+I also tried different training set-ups for alternating SGD (between 1 and 10 steps for the generator for 1 step of the discriminator). Even if some papers say that the discriminator might need more training, my own discriminator just become too confident when trained more than the generator, so the output of discriminator is too close to 0 or 1.
+
+### 5. 
+
+
+# April 20th : Adding captions
 
 Even though my L2 reconstruction network (similar to AE) is not as good at it can be (very blurry, maybe some other hyperparameters would be better), I wanted to know how much the captions could help. I used Francis Dutil's preprocessing to process the captions (remove stop words, only keep words occuring at least 10 times, switch to numbers) to get a vocabulary of +-7500 words. Next step to be able to use those processed captions was to find an embedding useful for this task.
 

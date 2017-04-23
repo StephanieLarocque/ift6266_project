@@ -27,6 +27,7 @@ from lasagne.layers import DenseLayer
 from lasagne.nonlinearities import rectify
 from lasagne.nonlinearities import softmax
 from lasagne.nonlinearities import sigmoid
+from lasagne.nonlinearities import tanh
 
 
 # In[2]:
@@ -48,21 +49,27 @@ class gan():
                     n_filters = 64, #number of filters before final deconv layer
                     filter_size = 3,
                     n_units_dense_layer = 1024,
-                    out_nonlin = sigmoid):
+                    out_nonlin = sigmoid,
+                    build_D = True,
+                    build_G = True):
 
-        self.G  = generator().build_network(
+        if build_G:
+            self.G  = generator().build_network(
                     G_input_var,
                     conv_before_pool = conv_before_pool,
                     n_filters = n_filters,
                     filter_size=filter_size)
-        self.D = discriminator().build_network(
+        else:
+            self.G = None
+        if build_D:
+            self.D = discriminator().build_network(
                     D_input_var,
                     conv_before_pool = conv_before_pool,
                     n_filters = n_filters,
                     filter_size=filter_size,
                     n_units_dense_layer =n_units_dense_layer,
                     out_nonlin =out_nonlin)
-        self.D_over_G = discriminator_over_generator().build_network(
+            self.D_over_G = discriminator_over_generator().build_network(
                     self.G,
                     self.D,
                     conv_before_pool = conv_before_pool,
@@ -70,6 +77,9 @@ class gan():
                     filter_size=filter_size,
                     n_units_dense_layer=n_units_dense_layer,
                     out_nonlin = out_nonlin)
+        else:
+            self.D = None
+            self.D_over_G = None
 
 
 
@@ -192,7 +202,7 @@ class discriminator(Model):
 
                 net['nonlin'+str(i)+'_'+str(c)]=NonlinearityLayer(
                             net[incoming_layer],
-                            nonlinearity = rectify)
+                            nonlinearity = tanh)
                 incoming_layer = 'nonlin'+str(i)+'_'+str(c)
 
             if i<n_block-1:
@@ -273,7 +283,7 @@ class discriminator_over_generator(Model):
 
                 net['nonlin'+str(i)+'_'+str(c)]=NonlinearityLayer(
                             net['bn'+str(i)+'_'+str(c)],
-                            nonlinearity = rectify)
+                            nonlinearity = tanh)
                 incoming_layer = 'nonlin'+str(i)+'_'+str(c)
 
 

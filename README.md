@@ -10,6 +10,12 @@ The purpose of this new joint loss is to take advantage of both GANs and L2 reco
 - L2 reconstruction gives a smooth border and rights colors, but is very blurry
 - GANs give sharp results but sometimes abstract details and missing smooth borders.
 
+## NOT CONVERGING RESULTS
+
+![Not converging 1](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/nan_not_converging.png)
+
+![Not converging 2](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/nan_not_converging2.png)
+
 ### 1. Label smoothing
 As proposed in a few papers, labels smoothing for the true images is a good way of preventing the discriminator to have a bad gradient. Instead of using:
 loss_fake = binary_crossentropy(fake_images, 0)

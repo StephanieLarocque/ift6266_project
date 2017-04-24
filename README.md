@@ -41,7 +41,8 @@ As proposed in a few papers (insert ref), labels smoothing for the true images i
 
 I try using:
 - loss_fake = binary_crossentropy(fake_images, 0)
-- loss_true = binary_crossentropy(true_images, 0.9)
+- loss_true = binary_crossentropy(true_images, 0.9)  
+
 to prevent the discriminator to be too confident on the real images.
 However, the NaN problem still occured.
 
@@ -87,12 +88,21 @@ discr_loss = -adv_loss
 
 ### 6. Noise on the true image given to the discriminator
 
-
+I added a gaussian noise for the discriminator input when it's the true image center, also to avoid a too high confidence for the discriminator. I tried different values for the noise std, but that didn't help. I think this is because the discriminator is also too confident on rejecting generated images, but that noise didn't help reducing that confidence.
 
 ### 7. Whole image discriminator
 Instead of using only the inpainting image as input to the discriminator, I reconstructed the whole image (contour + true/generated center). I thought that it would be easy for the discriminator to understand that the colors must match and the transition must be smooth between the inpainting and the contour with that strategy. However, the discriminator instead got too confident (again..) and output NaN.
 
 ### 8. Pretraining the generator only on the reconstruction loss
+
+Because the discriminator is too confident, I thought that using my pretrained generator model weights (contour+captions to center model) as the initial weights could help. In the joint loss set-up (reconstruction+adversarial losses), the generator never get to the same point as the generator when using only reconstruction loss. It only outputs abstract inpaintings before crashing to NaNs. I thought that if the generator is already a bit pretrained, then the generator would only need to understand the difference between a blurry and not-blurry image. I thought that it would be easier to train. But it was worse, because after only 1 or 2 minibatches, the discriminator loss went to NaN.
+
+## Conclusion
+
+1. Training GAN is hard
+2. I must do a big change in my architecture, since all those changes didn't help training
+3. Probably look to Wasserstein GANS (https://arxiv.org/pdf/1701.07875.pdf), since its purpose is mainly to change the loss function in order to always have a gradient, even if discriminator is too confident.
+4. Captions : I will also try an other embedding using LSTM/GRU layer if time permits it.
 
 
 

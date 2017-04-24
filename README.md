@@ -4,22 +4,41 @@ Blog link : https://stephanielarocque.github.io/ift6266_project/
 
 # April 23th : NaNs instead of GANs
 
-I tried implementing a joint loss L = a * Lrec + (1-a) * Ladv, where Lrec is the reconstruction loss used in previous model and Ladv is an adversarial loss obtained by a discriminator that takes the generated images and the true images as input. After a couple of minibatches, the discriminator loss (Ladv) goes to NaN, so that stops the training. I tried a lot of things to avoid that problem, without success.
+I tried implementing a joint loss as in this paper (https://arxiv.org/pdf/1604.07379.pdf)
+
+<p align="center"> L = a * Lrec + (1-a) * Ladv, </p>
+  
+ where Lrec is the reconstruction loss used in "contour+captions to center" model (the MSE between generated and true center) and Ladv is an adversarial loss obtained by a discriminator that takes the generated images and the true images as input. 
 
 The purpose of this new joint loss is to take advantage of both GANs and L2 reconstruction :
 - L2 reconstruction gives a smooth border and rights colors, but is very blurry
-- GANs give sharp results but sometimes abstract details and missing smooth borders.
+- GANs give sharp results (sometimes abstract results) but miss to give smooth transition between border and center.
+
+Since my "contour+cap to center" model (which is an encoder-decoder that incode the contour as well as the captions and decode to the center of the image) gives good results for a pixel wise reconstruction loss (MSE), I thought adding this GAN/adversarial loss could help to give sharper inpaintings.
+
+I only had to take the discriminator from my GAN's implementation and put it on top of the "contour+cap to center" model (that acts like the generator in the GAN set-up). Like I explained in my first posts, since I am using Lasagne, I need to have 2 discriminators:
+- D : Discriminator for true images only
+- D_over_G : Discrimator for fake images only (take the output of the generator as input)
+
+I thought that it would give at least as good results as my "contour+cap to center" model easily, but it didn't. Each time I tried running this joint loss, the discriminator loss (Ladv) always goes to NaN, so that stops the training. I tried a lot of things to avoid that problem, without success. This happens because the discriminator gets too confident on rejecting the generated images (log do not like 0s...). 
 
 ## NOT CONVERGING RESULTS
 
-![Not converging 1](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/nan_not_converging.png)
+Since the discrimator gives a NaN cost after only few minibatches/epochs, then the whole model do not converge. It stays in an early stage of abstract inpainting or is a gray-inpainting scheme.
 
 ![Not converging 2](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/nan_not_converging2.png)
 
+![Not converging 1](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/nan_not_converging.png)
+
+
+These are all the strategies I tried to avoid the discriminator's confidence.
+
 ### 1. Label smoothing
-As proposed in a few papers, labels smoothing for the true images is a good way of preventing the discriminator to have a bad gradient. Instead of using:
+As proposed in a few papers (insert ref), labels smoothing for the true images is a good way of preventing the discriminator to have a bad (or no) gradient. Instead of using:
 - loss_fake = binary_crossentropy(fake_images, 0)
 - loss_true = binary_crossentropy(true_images, 1),
+
+
 I try using:
 - loss_fake = binary_crossentropy(fake_images, 0)
 - loss_true = binary_crossentropy(true_images, 0.9)
@@ -31,6 +50,8 @@ However, the NaN problem still occured.
 - Strided convolution : I also tried Strided convolution instead of pooling layers, but that didn't help much.
 - LeakyRectify : Use of Leaky relu instead of relu didn't change training enough neither, for different values of leakiness.
 
+I was already using batch normalisation for each convolution.
+
 ### 3. Learning rates 
 I tried different learning rates. A smaller learning rate (~0.0001) for the discriminator than generator's learning rate (~0.01) was needed to obtain some results (a few epochs) before NaNs.
 
@@ -38,7 +59,31 @@ I tried different learning rates. A smaller learning rate (~0.0001) for the disc
 I also tried different training set-ups for alternating SGD (between 1 and 10 steps for the generator for 1 step of the discriminator). Even if some papers say that the discriminator might need more training, my own discriminator just become too confident when trained more than the generator, so the output of discriminator is too close to 0 or 1.
 
 ### 5. Loss functions 
-Explain which loss function used for each model
+At first, I tried: 
+
+---------------------------------------------------------
+fake_center = G(contour, captions)  
+rec_loss = MSE(real_center, fake_center)  
+adv_loss = -T.mean(T.log( D(real_center) )  + T.log( 1 - D(fake_center) ) )  
+
+gen_loss = 0.5*rec_loss + 0.5* adv_loss  
+discr_loss = -adv_loss  
+
+---------------------------------------------------------
+
+And then, like in the non-saturating game for GANS,  I switched to :
+
+
+---------------------------------------------------------
+fake_center = G(contour, captions)  
+rec_loss = MSE(real_center, fake_center)  
+adv_loss = -T.mean(T.log( D(real_center) )  + T.log( 1 - D(fake_center) ) )   
+
+gen_loss = 0.5*rec_loss - 0.5* T.mean( T.log( D(fake_center)  ))  
+discr_loss = -adv_loss  
+
+---------------------------------------------------------
+
 
 ### 6. Noise on the true image given to the discriminator
 

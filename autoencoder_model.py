@@ -236,11 +236,13 @@ class AE_contour2center_captions(Model):
                       n_filters = 32,
                       code_size = 100,
                       filter_size = 3,
-                      pool_factor = 2):
+                      pool_factor = 2,
+                      all_caps = True):
 
     	self.conv_before_pool = conv_before_pool
     	self.code_size = code_size
     	self.n_filters = n_filters
+    	self.all_caps = all_caps
 
         self.input_var = input_var
         self.captions_var = captions_var
@@ -378,17 +380,25 @@ class AE_contour2center_captions(Model):
 
             #caps_onehot = np.random.normal(loc=0.0, scale=0.001, size=(n_samples,vocab_size+2)).astype('float32')
             caps_onehot = np.zeros(shape =(n_samples, vocab_size+2), dtype=np.float32)
+            
             for i in range(n_samples):
 
                 caps_i_onehot = np.zeros(shape=(len(caps[i]), vocab_size+2 ), dtype=np.float32)
 
-                for j in range(len(caps[i])):
-
-                    cap_j = caps[i][j]
-                    for word in cap_j:
-                        caps_i_onehot[j][word] = 1.0
-
-                caps_onehot[i]=np.mean(caps_i_onehot, axis = 0)
+				if self.all_caps:
+					for j in range(len(caps[i])):
+	
+						cap_j = caps[i][j]
+						for word in cap_j:
+							caps_i_onehot[j][word] = 1.0
+	
+					caps_onehot[i]=np.sum(caps_i_onehot, axis = 0)
+					
+				else:
+					cap_i0 = caps[i][0]
+					for word in cap_i0:
+						caps_i_onehot[0][word] = 1.0
+					caps_onehot[i] = np.array(caps_i_onehot[0])
             return caps_onehot
 
         inputs, targets, caps = batch

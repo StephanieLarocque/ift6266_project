@@ -50,9 +50,11 @@ load_caption = True
 #Model Hyperparameters
 conv_before_pool=[2,2]
 n_filters = 32                      
-code_size = 750
+code_size = 500
 filter_size = 3
 pool_factor = 2
+
+all_caps = False
 
 
 
@@ -61,7 +63,8 @@ pool_factor = 2
 #######################
 # Saving path and stuff
 ######################
-exp_name = 'AE_5caps+'
+exp_name = 'AE_'+ ('5' if all_caps else '1') + 'capsreal+'
+
 exp_name += '_lr='+str(learning_rate)
 exp_name += '_wd='+str(weight_decay)
 exp_name += '_bs='+str(batch_size)
@@ -142,7 +145,8 @@ model.build_network(input_var=ae_input_var,
                     n_filters = n_filters,
                     code_size = code_size,
                     filter_size = filter_size,
-                    pool_factor = pool_factor)
+                    pool_factor = pool_factor,
+                    all_caps=all_caps)
 
 
 # In[8]:
@@ -272,60 +276,5 @@ for epoch in range(num_epochs):
             print('Copying model and other training files to {}'.format(loadpath))
             copy_tree(savepath, loadpath)
         break 
-
-
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-
-
-
-# In[127]:
-
-batch_train = extract_stuff(train_iter[400:1000])
-        
-show_true_fake(batch_train, subset=20)
-
-
-# In[130]:
-
-batch_valid = extract_stuff(valid_iter[1500:2000])
-
-show_true_fake(batch_valid, subset = 20)
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
 
 

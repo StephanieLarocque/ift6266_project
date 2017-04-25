@@ -18,6 +18,7 @@ from lasagne.layers import DenseLayer
 from lasagne.nonlinearities import rectify
 from lasagne.nonlinearities import softmax
 from lasagne.nonlinearities import sigmoid
+from lasagne.nonlinearities import tanh
 
 from matplotlib import pyplot as plt
 
@@ -325,7 +326,8 @@ class AE_contour2center_captions(Model):
         net['last_layer'] = Conv2DLayer(net[incoming_layer],
                 num_filters = 3,
                 filter_size = 1,
-                pad='same')
+                pad='same',
+                nonlinearity = tanh)
         incoming_layer = 'last_layer'
 
 
@@ -340,8 +342,8 @@ class AE_contour2center_captions(Model):
         input_var = self.input_var#T.tensor4('input img bx3x64x64')
         target_var = T.tensor4('inpainting target')
         captions_var = self.captions_var#T.matrix('captions var')
-        
-        
+
+
         if comp_train:
             print "Defining and compiling train functions"
 
@@ -388,7 +390,7 @@ class AE_contour2center_captions(Model):
                     for word in cap_j:
                         caps_i_onehot[j][word] = 1.0
 
-                caps_onehot[i]=np.mean(caps_i_onehot, axis = 0)
+                caps_onehot[i]=np.sum(caps_i_onehot, axis = 0)
             return caps_onehot
 
         inputs, targets, caps = batch

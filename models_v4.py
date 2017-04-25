@@ -76,15 +76,10 @@ class discriminator(Model):
         net = {}
 
 
-        # net['fake_input'] = InputLayer((None, 3, 32, 32), fake_input_var)
-        # net['true_input'] = InputLayer((None, 3, 32, 32), true_input_var)
-        # net['full_input'] = ConcatLayer([net['fake_input'], net['true_input']], axis=0)
-        # incoming_layer = 'full_input'
-
         net['input'] = InputLayer((None,3,32,32), input_var)
         incoming_layer = 'input'
         
-        net['noise_to_input'] = GaussianNoiseLayer(net[incoming_layer], sigma=1.0)
+        net['noise_to_input'] = GaussianNoiseLayer(net[incoming_layer], sigma=0.1)
         incoming_layer = 'noise_to_input'
 
         
@@ -184,9 +179,6 @@ class discriminator_over_generator(Model):
         #TODO : faire un layer qui ne fait rien!!!
         net['input'] = Pool2DLayer(G_net.net, pool_size=1)
         incoming_layer = 'input'
-        
-
-
         
         net['pad_input'] = PadLayer(net[incoming_layer], width=16, val=0)
         incoming_layer = 'pad_input'

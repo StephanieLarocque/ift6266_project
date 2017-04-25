@@ -13,7 +13,7 @@ So by minimizing L_wgan, we maximize D(true_images) - D(fake_images), so it push
 <p align="center"> L_gener = MSE(fake_images, true_images) - 0.5 * D(fake_images)  </p>
 So, by minimizing L_gener, we minimize the MSE (the reconstruction error) and maximize the discriminator's prediction on the fake images (D(fake_images)).   
 
-Also, I used parameter clipping for the discriminator when the norm was not in the range (-0.05, 0.05). It makes the discriminator weaker and give a chance to the generator.
+Also, I used parameter clipping for the discriminator when the norm was not in the range (-0.05, 0.05) to have a Lipschitz constraint. It makes the discriminator weaker and give a chance to the generator.
 
 ### First thoughts
 
@@ -27,6 +27,8 @@ Also, I used parameter clipping for the discriminator when the norm was not in t
 - Try different hyperparameters to understand their effect on the global performance
 - Retry GAN (not W-GAN) but with tanh output nonlinearity for the generator
 - Try this set up with/without captions (bag-of-words embedding) to see its effect 
+- If time permits it, compare those results with only GAN and/or only W-GAN loss (instead of joint loss) for the generator
+- Caption stuff : try using an LSTM/GRU layer instead of bag-of-words embedding (work in progress...)
 
 
 

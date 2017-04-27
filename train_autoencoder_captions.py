@@ -35,7 +35,7 @@ _FLOATX = config.floatX
 
 #Training hyper-parameters
 
-learning_rate = 0.01
+learning_rate = 0.005
 weight_decay = 0
 num_epochs = 500
 max_patience = 100
@@ -158,10 +158,10 @@ plot_results_train = False
 plot_results_valid = False
 
 
-num_epochs = 1
+#num_epochs = 1
 
 #n_batches_train = 200
-n_batches_valid = 10
+#n_batches_valid = 10
 
 
 # In[14]:

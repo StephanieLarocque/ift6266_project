@@ -33,7 +33,7 @@ from matplotlib import colors
 
 #Training hyper-parameters
 
-learning_rate = 0.008
+learning_rate = 0.01
 weight_decay = 0
 num_epochs = 500
 max_patience = 100
@@ -46,9 +46,9 @@ load_caption = False
 #nb_discriminator_steps = 2
 
 #Model Hyperparameters
-conv_before_pool=[2,2,2]
+conv_before_pool=[1,1,1,1]
 n_filters = 32
-code_size = 500
+code_size =500
 filter_size = 3
 pool_factor = 2
 
@@ -192,114 +192,9 @@ ae_valid_fn = theano.function([ae_input_var, ae_target_var], valid_loss, allow_i
 print "Done"
 
 
-# In[ ]:
-
-
-
-
-# In[ ]:
 
 get_imgs = theano.function([ae_input_var], lasagne.layers.get_output(ae[last_layer],deterministic = True),
                           allow_input_downcast=True)
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-#def show_true_fake(batch, subset = 1, title = ''):
-#    inputs, targets, caps = batch #inputs and targets already transposed
-#
-#    for i in range(subset):
-#        idx = np.random.randint(inputs.shape[0])
-#        fake_imgs = get_imgs(inputs[idx:idx+1])
-#
-#        target_img = np.transpose(targets[idx], (1,2,0))
-#        fake_one = np.transpose(fake_imgs[0], (1,2,0))
-
-
-#         plt.imshow(contour)
-#        plt.title('Ground truth vs predicted '+ title)
-#        plt.imshow(target_img)
-#        plt.figure()
-#        plt.imshow(fake_one)
-#        plt.figure()
-#        plt.show()
-
-
-
-# In[10]:
-
-# inputs_train, targets_train, caps_train = train_iter[:500]
-
-# inputs_train = np.transpose(inputs_train,(0,3,1,2))
-# targets_train = np.transpose(targets_train, (0,3,1,2))
-# batch_train = inputs_train, targets_train, caps_train
-
-
-# In[19]:
-
-# num_epochs = 5
-# for ep in range(num_epochs):
-#     cost_epoch = 0
-#     for i in range(1):#, batch in enumerate(train_iter):
-
-#         #inputs, targets, caps = batch
-
-
-
-#         cost_minibatch = ae_train_fn(inputs_train, targets_train)
-#         #print "     minibatch ", i, " cost : ", cost_minibatch
-#         cost_epoch += cost_minibatch
-#         if num_epochs<=5:
-#              show_true_fake(batch_train, title = 'TRAIN')
-
-#     print 'cost at epoch ', ep, ' = ', cost_epoch
-
-
-
-#     print '--------------------------------------------'
-
-
-
-# In[ ]:
-
-
-
-
-# In[51]:
-
-#inputs_valid, targets_valid, caps_valid = valid_iter[500:1000]
-
-#inputs_valid = np.transpose(inputs_valid,(0,3,1,2))
-#targets_valid= np.transpose(targets_valid, (0,3,1,2))
-#batch_valid = inputs_valid, targets_valid, caps_valid
-
-
-# In[52]:
-
-#show_true_fake(batch_valid, subset = 10)
-
-
-# In[ ]:
-
-#inpainting_valid = get_imgs(inputs_valid)
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
 
 
 
@@ -314,12 +209,7 @@ def extract_stuff(batch):
     return inputs, targets, caps
 
 
-# In[ ]:
 
-
-
-
-# In[ ]:
 
 plot_results_train = False
 plot_results_valid = False

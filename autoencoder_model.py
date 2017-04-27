@@ -18,6 +18,7 @@ from lasagne.layers import DenseLayer
 from lasagne.nonlinearities import rectify
 from lasagne.nonlinearities import softmax
 from lasagne.nonlinearities import sigmoid
+from lasagne.nonlinearities import tanh
 
 from matplotlib import pyplot as plt
 
@@ -237,13 +238,14 @@ class AE_contour2center_captions(Model):
                       code_size = 100,
                       filter_size = 3,
                       pool_factor = 2,
+                      output_nonlin = tanh,
                       all_caps = True):
 
     	self.conv_before_pool = conv_before_pool
     	self.code_size = code_size
     	self.n_filters = n_filters
     	self.all_caps = all_caps
-
+        self.output_nonlin = output_nonlin
         self.input_var = input_var
         self.captions_var = captions_var
 
@@ -327,11 +329,13 @@ class AE_contour2center_captions(Model):
         net['last_layer'] = Conv2DLayer(net[incoming_layer],
                 num_filters = 3,
                 filter_size = 1,
-                pad='same')
+                pad='same',
+                nonlinearity = self.output_nonlin)
         incoming_layer = 'last_layer'
 
 
         self.net = net[incoming_layer]
+        self.dict_net = net
         #return net, incoming_layer
 
 
@@ -385,20 +389,20 @@ class AE_contour2center_captions(Model):
 
                 caps_i_onehot = np.zeros(shape=(len(caps[i]), vocab_size+2 ), dtype=np.float32)
 
-				if self.all_caps:
-					for j in range(len(caps[i])):
-	
-						cap_j = caps[i][j]
-						for word in cap_j:
-							caps_i_onehot[j][word] = 1.0
-	
-					caps_onehot[i]=np.sum(caps_i_onehot, axis = 0)
-					
-				else:
-					cap_i0 = caps[i][0]
-					for word in cap_i0:
-						caps_i_onehot[0][word] = 1.0
-					caps_onehot[i] = np.array(caps_i_onehot[0])
+                if self.all_caps:
+                    for j in range(len(caps[i])):
+
+                        cap_j = caps[i][j]
+                        for word in cap_j:
+                            caps_i_onehot[j][word] = 1.0
+
+                    caps_onehot[i]=np.sum(caps_i_onehot, axis = 0)
+                    
+                else:
+                    cap_i0 = caps[i][0]
+                    for word in cap_i0:
+                        caps_i_onehot[0][word] = 1.0
+                    caps_onehot[i] = np.array(caps_i_onehot[0])
             return caps_onehot
 
         inputs, targets, caps = batch
@@ -546,6 +550,7 @@ class AE_center2center(Model):
 
 
         self.net = net[incoming_layer]
+        self.dict_net = net
         return net, incoming_layer
 
 if __name__ == '__main__':

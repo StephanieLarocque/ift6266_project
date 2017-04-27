@@ -152,11 +152,16 @@ Once I got this running, I thought it could be useful to use all the 5 captions 
 
 ### Results
 The results looks lot like without captions though.
+no caption :
 
+1 caption:
+![1cap](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/valid_AE_1capsreal+_lr=0.01_wd=0_bs=512_conv=[1,\ 1,\ 1,\ 1]_nfilt=32_code=500.png)
+5 captions :
+![5caps](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/valid_AE_5capsreal+_lr=0.01_wd=0_bs=512_conv=[1,\ 1,\ 1,\ 1]_nfilt=32_code=500.png)
 
-** insert no cap
-** insert 1 cap
-** insert 5 cap
+This architecture (for no/1/5 caps) had a learning rate = 0.01, no weight decay, 4 block of convolution+pooling, 32 filters at the beginning of the network (double at each pooling layer) and a latent code of 500 units.
+
+Multiple architecture were tested, including a change in the learning rate, in the latent code size, in the number of convolutions, in the size of the filters, etc. However, the results looks pretty much all the same and achieve their best results around the 20th epoch.
 
 ### Next steps
 - Try using a GRU/LSTM layer instead of a Dense Layer (and then no need to have a +-7500 vector)

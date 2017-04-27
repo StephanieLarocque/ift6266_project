@@ -136,11 +136,9 @@ class discriminator(Model):
         #Last layer must have 1 units (binary classification)
         net['last_layer'] = DenseLayer(net[incoming_layer],
                             num_units = 1,
-                            nonlinearity = None)
+                            nonlinearity = sigmoid)
         incoming_layer = 'last_layer'
         
-        net['real_last_layer'] = NonlinearityLayer(net[incoming_layer], nonlinearity = sigmoid)
-        incoming_layer = 'real_last_layer'
 
 
         self.net = net[incoming_layer]
@@ -228,13 +226,11 @@ class discriminator_over_generator(Model):
         #Last layer must have 1 units (binary classification)
         net['last_layer'] = DenseLayer(net[incoming_layer],
                             num_units = 1,
-                            nonlinearity = None,
                             W = D_net.dict_net['last_layer'].W,
-                            b = D_net.dict_net['last_layer'].b)
+                            b = D_net.dict_net['last_layer'].b,
+                            nonlinearity = sigmoid)
         incoming_layer = 'last_layer'
         
-        net['real_last_layer'] = NonlinearityLayer(net[incoming_layer], nonlinearity = sigmoid)
-        incoming_layer = 'real_last_layer'
 
         #Softmax layer needed somehere
         self.net = net[incoming_layer]

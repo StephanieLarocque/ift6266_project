@@ -2,6 +2,62 @@
 
 Blog link : https://stephanielarocque.github.io/ift6266_project/
 
+# April 28th : W-gan without captions
+
+Here is what happen in training (for a small subset of 50\*1000 images from the training set) for a few epochs : 
+
+These are random samples from the last minibatch of the specified epoch.
+
+Epoch 0 : Random color
+![w-gan epoch 0](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/auto_wgan_ep0.png)
+Epoch 1 : All white (happens a often, sometimes becomes white again before restarting to learn useful stuff)
+![w-gan epoch 1](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/auto_wgan_ep1.png)
+Epoch 2 : Noise
+![w-gan epoch 2](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/auto_wgan_ep2.png)
+Epoch 3
+![w-gan epoch 3](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/auto_wgan_ep3.png)
+Epoch 4 
+![w-gan epoch 4](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/auto_wgan_ep4.png)
+Epoch 5 : Almost all brown
+![w-gan epoch 5](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/auto_wgan_ep5.png)
+Epoch 6 : Learning luminosity near the border 
+![w-gan epoch 6](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/auto_wgan_ep6.png)
+Epoch 7 : Still learning how much luminosity there is, also some checkerboard artefacts
+![w-gan epoch 7](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/auto_wgan_ep7.png)
+Epoch 8
+![w-gan epoch 8](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/auto_wgan_ep8.png)
+Epoch 9 : A lot of checkerboard artefacts
+![w-gan epoch 9](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/auto_wgan_ep9.png)
+Epoch 10 : And then back to 1 color, but with details
+![w-gan epoch 10](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/auto_wgan_ep10.png)
+Epoch 11: A lot of checkerboard artefacts
+![w-gan epoch 11](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/auto_wgan_ep11.png)
+Epoch 12 : Colors seems to match
+![w-gan epoch 12](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/auto_wgan_ep12.png)
+Epoch 13 : If we look really fast, does look like a real picture  
+![w-gan epoch 13](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/auto_wgan_ep13.png)
+
+
+These results were achieved with a reconstruction loss + wgan loss for the generator, without using the captions (on a small subset of the training set).
+About checkerboard artefacts, I looked at that blog : http://distill.pub/2016/deconv-checkerboard/ but didn't find something that I could improve on my model to prevent those checkerboard artefacts, since :
+- I had no deconvolution/transpose layers
+- They were replaced by upscaling + convolution layers
+- My upscaling layers already used the "repeat" mode instead of filling with 0s
+So.. I don't really know where it comes from.
+
+
+
+# April 26th : Other types of embedding for captions
+
+I tried and compared :
+- No caps
+- With 1 or 5 caps (bag of word embedding)
+- LSTM 
+- GRU
+
+However, I think that my embeddings were not powerful enough, because it didn't make a lot of difference with or without the captions.
+
+
 # April 24th : W-GAN
 
 After talking with Sandeep, I tried Wasserstein GAN (https://arxiv.org/pdf/1701.07875.pdf). The main reason why I tried this is because it avoids the NaN problem. Instead of using the log loss:

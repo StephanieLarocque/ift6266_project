@@ -1,6 +1,7 @@
 # IFT6266 Project : inpainting
 
 Blog link : https://stephanielarocque.github.io/ift6266_project/
+Note that the pictures do not appear in my blog, but only in my "readme" file on github.
 
 # April 28th : W-gan without captions
 

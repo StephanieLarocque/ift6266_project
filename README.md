@@ -38,12 +38,15 @@ Epoch 13 : If we look really fast, does look like a real picture
 ![w-gan epoch 13](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/auto_wgan_ep13.png)
 
 
-These results were achieved with a reconstruction loss + wgan loss for the generator, without using the captions (on a small subset of the training set).
+These results were achieved with a reconstruction loss + wgan loss for the generator, without using the captions (on a small subset of the training set). It was not trained to convergence since I wanted to analyse how the generator prediction changes over time in the early training.
+
 About checkerboard artefacts, I looked at that blog : http://distill.pub/2016/deconv-checkerboard/ but didn't find something that I could improve on my model to prevent those checkerboard artefacts, since :
 - I had no deconvolution/transpose layers
 - They were replaced by upscaling + convolution layers
 - My upscaling layers already used the "repeat" mode instead of filling with 0s
 So.. I don't really know where it comes from.
+
+Also, the generator often outputs "single-color" images in early training, but I don't know if it's a problem.
 
 
 

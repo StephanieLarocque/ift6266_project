@@ -82,7 +82,9 @@ Also, I used parameter clipping for the discriminator when the norm was not in t
 
 ### Results
 
-Unfortunately, it seems that the discriminator "choose" to say that all images are true almost everytime. At the beginning of the training, it outputs random labels and then gradually output all "1s", for both true and generated iamges. Even though the discriminator loss could be lower if it outputs "0s" for fakes images, it seems that it is stock in a bad local minima or a plateus, because it doesn't escape it easily (or sometimes, never escape it) and keep a loss=0 (so always predict 1s). 
+Unfortunately, it seems that the discriminator "choose" to say that all images are true almost everytime. At the beginning of the training, it outputs random labels and then gradually output all "1s", for both true and generated iamges. Even though the discriminator loss could be lower if it outputs "0s" for fakes images, it seems that it is stock in a bad local minima or a plateus, because it doesn't escape it easily (or sometimes, never escape it) and keep a loss=0 (so always predict 1s).   
+
+I tried training the discrimator more or less than the generator, but that didn't .
 
 
 

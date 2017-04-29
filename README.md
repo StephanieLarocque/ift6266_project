@@ -1,7 +1,7 @@
 # IFT6266 Project : inpainting
 
 Blog link : https://stephanielarocque.github.io/ift6266_project/  
-Note that the pictures do not appear in my blog, but only in my "readme" file on github.
+
 
 # April 30th : Summary of my work
 
@@ -16,31 +16,31 @@ These are random samples from the last minibatch of the specified epoch.
 Epoch 0 : Random color
 ![w-gan epoch 0](/blog_img_and_results/auto_wgan_ep0.png)
 Epoch 1 : All white (happens a often, sometimes becomes white again before restarting to learn useful stuff)
-![w-gan epoch 1](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/auto_wgan_ep1.png)
+![w-gan epoch 1](/blog_img_and_results/auto_wgan_ep1.png)
 Epoch 2 : Noise
-![w-gan epoch 2](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/auto_wgan_ep2.png)
+![w-gan epoch 2](/blog_img_and_results/auto_wgan_ep2.png)
 Epoch 3
-![w-gan epoch 3](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/auto_wgan_ep3.png)
+![w-gan epoch 3](h/blog_img_and_results/auto_wgan_ep3.png)
 Epoch 4 
-![w-gan epoch 4](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/auto_wgan_ep4.png)
+![w-gan epoch 4](/blog_img_and_results/auto_wgan_ep4.png)
 Epoch 5 : Almost all brown
-![w-gan epoch 5](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/auto_wgan_ep5.png)
+![w-gan epoch 5](/blog_img_and_results/auto_wgan_ep5.png)
 Epoch 6 : Learning luminosity near the border 
-![w-gan epoch 6](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/auto_wgan_ep6.png)
+![w-gan epoch 6](/blog_img_and_results/auto_wgan_ep6.png)
 Epoch 7 : Still learning how much luminosity there is, also some checkerboard artefacts
-![w-gan epoch 7](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/auto_wgan_ep7.png)
+![w-gan epoch 7](/blog_img_and_results/auto_wgan_ep7.png)
 Epoch 8
-![w-gan epoch 8](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/auto_wgan_ep8.png)
+![w-gan epoch 8](/blog_img_and_results/auto_wgan_ep8.png)
 Epoch 9 : A lot of checkerboard artefacts
-![w-gan epoch 9](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/auto_wgan_ep9.png)
+![w-gan epoch 9](/blog_img_and_results/auto_wgan_ep9.png)
 Epoch 10 : And then back to 1 color, but with details
-![w-gan epoch 10](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/auto_wgan_ep10.png)
+![w-gan epoch 10](/blog_img_and_results/auto_wgan_ep10.png)
 Epoch 11: A lot of checkerboard artefacts
-![w-gan epoch 11](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/auto_wgan_ep11.png)
+![w-gan epoch 11](/blog_img_and_results/auto_wgan_ep11.png)
 Epoch 12 : Colors seems to match
-![w-gan epoch 12](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/auto_wgan_ep12.png)
+![w-gan epoch 12](/blog_img_and_results/auto_wgan_ep12.png)
 Epoch 13 : If we look really fast, does look like a real picture  
-![w-gan epoch 13](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/auto_wgan_ep13.png)
+![w-gan epoch 13](/blog_img_and_results/auto_wgan_ep13.png)
 
 
 These results were achieved with a reconstruction loss + wgan loss for the generator, without using the captions (on a small subset of the training set). It was not trained to convergence since I wanted to analyse how the generator prediction changes over time in the early training.
@@ -101,11 +101,11 @@ Unfortunately, it seems that the discriminator "choose" to say that all images a
 I tried different training set-ups regarding the ratio *number of time generator is trained* vs *number of time discriminator is trained*. However, that didn't and i got these bad results (for GANS). Note that the generator keep generating images like in the first picture. Often, it gets in a better state where it produces better images, but then it gets a bad gradient and returns often in its first state.
 
 
-![W-GAN not converging 0](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/wgan_not_converging0.png)
+![W-GAN not converging 0](/blog_img_and_results/wgan_not_converging0.png)
 
-![W-GAN not converging 1](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/wgan_not_converging1.png)
+![W-GAN not converging 1](/blog_img_and_results/wgan_not_converging1.png)
 
-![W-GAN not converging 2](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/wgan_not_converging2.png)
+![W-GAN not converging 2](/blog_img_and_results/wgan_not_converging2.png)
 
 As you can see, it stays a very blurrrrry inpainting. It seems that the reconstruction loss
 
@@ -142,9 +142,9 @@ I thought that it would give at least as good results as my basic CNN model easi
 
 Since the discrimator gives a NaN cost after only few minibatches/epochs, then the whole model do not converge. It stays in an early stage of abstract inpainting or in a gray-inpainting scheme.
 
-![Not converging 2](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/nan_not_converging2.png)
+![Not converging 2](/blog_img_and_results/nan_not_converging2.png)
 
-![Not converging 1](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/nan_not_converging.png)
+![Not converging 1](/blog_img_and_results/nan_not_converging.png)
 
 
 These are all the strategies I tried to avoid the discriminator's confidence.
@@ -240,11 +240,11 @@ Once I got this running, I thought it could be useful to use all the 5 captions 
 The results looks lot like without captions though.
 
 1 caption:
-![1cap](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/valid_AE_1capsreal%2B_lr%3D0.01_wd%3D0_bs%3D512_conv%3D%5B1%2C%201%2C%201%2C%201%5D_nfilt%3D32_code%3D500.png)
+![1cap](/blog_img_and_results/valid_AE_1capsreal%2B_lr%3D0.01_wd%3D0_bs%3D512_conv%3D%5B1%2C%201%2C%201%2C%201%5D_nfilt%3D32_code%3D500.png)
 
 
 5 captions :
-![5caps](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/valid_AE_5capsreal%2B_lr%3D0.01_wd%3D0_bs%3D512_conv%3D%5B1%2C%201%2C%201%2C%201%5D_nfilt%3D32_code%3D500.png)
+![5caps](/blog_img_and_results/valid_AE_5capsreal%2B_lr%3D0.01_wd%3D0_bs%3D512_conv%3D%5B1%2C%201%2C%201%2C%201%5D_nfilt%3D32_code%3D500.png)
 
 This architecture (for no/1/5 caps) had a learning rate = 0.01, no weight decay, 4 block of convolution+pooling, 32 filters at the beginning of the network (double at each pooling layer) and a latent code of 500 units.
 
@@ -282,7 +282,7 @@ Note that the dense layer is important here since, without it, it always give an
 Here are the results for a subset of the validation set after 115 epochs :
 
 
-![CNN basic results](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/cnn_basic_results.png)
+![CNN basic results](/blog_img_and_results/cnn_basic_results.png)
 Top = Input of the model, Middle = Ground truth, Bottom = Generated image
 
 These are, unsuprisingly, blurry. Furthermore, the colors do not always match with the border (maybe because of batch norm with mode collape?). Using a GAN setup could help, even more if the whole images (border+center) are given to the discriminator : the colors would maybe match more the border. Using a GAN (adversarial loss) can also help to make the generated images sharper.
@@ -300,7 +300,7 @@ These are, unsuprisingly, blurry. Furthermore, the colors do not always match wi
 
 My GAN model doesn't perform well. Since I thought my Jupyter Notebook was using GPU, but wasn't, I had problems because it just freezed my screen and everything when I tried to run 1 epoch. I finally got my GAN to "train", but NaNs occur after 2 or 3 epochs - and therefor *very* bad results for the generator.
 
-![Gan crazy results](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/gan_crazy_result.png)
+![Gan crazy results](/blog_img_and_results/gan_crazy_result.png)
 
 
 

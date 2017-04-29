@@ -240,12 +240,10 @@ Once I got this running, I thought it could be useful to use all the 5 captions 
 The results looks lot like without captions though.
 
 1 caption:
-![1cap](/blog_img_and_results/valid_AE_1capsreal%2B_lr%3D0.01_wd%3D0_bs%3D512_conv%3D%5B1%2C%201%2C%201%2C%201%5D_nfilt%3D32_code%3D500.png)
-
+![1cap](/blog_img_and_results/valid_AE_1capsreal+_lr=0.01_wd=0_bs=512_conv=[1, 1, 1, 1]_nfilt=32_code=500.png)
 
 5 captions :
-![5caps](/blog_img_and_results/valid_AE_5capsreal%2B_lr%3D0.01_wd%3D0_bs%3D512_conv%3D%5B1%2C%201%2C%201%2C%201%5D_nfilt%3D32_code%3D500.png)
-
+![5caps](/blog_img_and_results/valid_AE_5capsreal+_lr=0.01_wd=0_bs=512_conv=[1, 1, 1, 1]_nfilt=32_code=500.png)
 This architecture (for no/1/5 caps) had a learning rate = 0.01, no weight decay, 4 block of convolution+pooling, 32 filters at the beginning of the network (double at each pooling layer) and a latent code of 500 units.
 
 Multiple architecture were tested, including a change in the learning rate, in the latent code size, in the number of convolutions, in the size of the filters, etc. However, the results looks pretty much all the same and achieve their best results around the 20th epoch.

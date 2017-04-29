@@ -14,7 +14,7 @@ Here is what happen in training (for a small subset of 500\*1000 images from the
 These are random samples from the last minibatch of the specified epoch.
 
 Epoch 0 : Random color
-![w-gan epoch 0](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/auto_wgan_ep0.png)
+![w-gan epoch 0](/blog_img_and_results/auto_wgan_ep0.png)
 Epoch 1 : All white (happens a often, sometimes becomes white again before restarting to learn useful stuff)
 ![w-gan epoch 1](https://github.com/StephanieLarocque/ift6266_project/blob/master/blog_img_and_results/auto_wgan_ep1.png)
 Epoch 2 : Noise

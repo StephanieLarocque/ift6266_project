@@ -7,11 +7,42 @@ Blog link : https://stephanielarocque.github.io/ift6266_project/
 
 Sadly enough, I achieved my better results with y basic CNN network (as presented in April 15th blog post). Those results were blurry (probably because of the L2 reconstruction loss), but were still able to match the context and colors.  
 
+### Results from the training set : 
+![Training best CNN](blog_img_and_results/train_[2,2,2]_0.005_32_500.png)
+
+### Results from the validation set : 
+![Validation best CNN](blog_img_and_results/valid_[2,2,2]_0.005_32_500.png)
+
+
+
+This model was composed of a 3 blocks of Convolution+Convolution+Pooling (including batch normalization) in order to recover the context from the 64x64 image, followed by 2 dense layers (one of size 500-- the code, and one to recover the right number of units to perform the upconvolution) and finally 2 blocks of Upsampling+Convolution+Convolution in order to recover a 32x32 image.
+TODO : insert schema
+
 I tried a lot of variants that finally didn't generate better quality images. Here is a very brief summary:
 
 ### Captions
 
+I first tried using a bag of words embedding for the captions (1 and 5 captions), but that didn't change the overall quality of the images. To make the captions more useful, I tried better embeddings, first using LSTM and then GRU layers. However, the captions didn't improve the image generation quality. I think using a more deeper architecture for the caption embedding could have help a lot.
+
+
 ### Adversarial set-up
+
+In order to obtain less blurry results and more interested inpainting, I tried GANs. Since I had already implemented a GAN network at the beginning of this project (without result), I used that implementation to add a discriminator in top of my conv-deconv CNN network that already produces interesting yet blurry images.  
+
+However, I didn't get to have nice, smooth and full of details images. I tried a LOT of things to improve generator/discriminator efficiency in their own task, without really nice results. Here are some of the variants that I have tried :
+- Use of batch norm (always)
+- Label smoothing (for true image only)
+- Different learning rates
+- Different activation functions for intermediate layer (rely, leaky relu..) and for last layer of the generator (no activation, sigmoid, tanh, clip..)
+- Alternative training for generator/discriminator (more or less)
+- Noise added to true images
+- Different loss functions (not saturating game)
+- Whole image instead of just the inpainting for the discriminator
+- Pretraining the generator
+- WGAN with all the above variants tested
+
+Unfortunately, I didn't get the results I expected
+
 
 ### Acknowledgements
 
@@ -19,7 +50,7 @@ I used the dataset loader and the caption preprocessing from Francis Dutil. I ha
 
 ### Papers
 
-
+TODO : link useful papers I used
 
 
 

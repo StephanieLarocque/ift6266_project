@@ -13,7 +13,7 @@ Sadly enough, I achieved my better results with y basic CNN network (as presente
 ### Results from the validation set : 
 ![Validation best CNN](blog_img_and_results/valid_[2,2,2]_0.005_32_500.png)
 
-
+TODO : put error plot
 
 This model was composed of a 3 blocks of Convolution+Convolution+Pooling (including batch normalization) in order to recover the context from the 64x64 image, followed by 2 dense layers (one of size 500-- the code, and one to recover the right number of units to perform the upconvolution) and finally 2 blocks of Upsampling+Convolution+Convolution in order to recover a 32x32 image.
 TODO : insert schema

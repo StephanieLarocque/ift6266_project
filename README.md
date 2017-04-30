@@ -5,6 +5,25 @@ Blog link : https://stephanielarocque.github.io/ift6266_project/
 
 # April 30th : Summary of my work
 
+Sadly enough, I achieved my better results with y basic CNN network (as presented in April 15th blog post). Those results were blurry (probably because of the L2 reconstruction loss), but were still able to match the context and colors.  
+
+I tried a lot of variants that finally didn't generate better quality images. Here is a very brief summary:
+
+### Captions
+
+### Adversarial set-up
+
+### Acknowledgements
+
+I used the dataset loader and the caption preprocessing from Francis Dutil. I had also interesting discussions with him and other people  in the lab, including Sandeep and people outside Deep Learning course.
+
+### Papers
+
+
+
+
+
+
 # April 28th : Other investigations with W-GAN
 
 Since my model wasn't even able to overfit a small subset (like you can see in the picture below), I tried a bunch of other variants to find a set-up where the generator/discriminator could both learn in an useful way.

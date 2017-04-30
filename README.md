@@ -7,6 +7,47 @@ Blog link : https://stephanielarocque.github.io/ift6266_project/
 
 # April 28th : Other investigations with W-GAN
 
+Since my model wasn't even able to overfit a small subset (like you can see in the picture below), I tried a bunch of other variants to find a set-up where the generator/discriminator could both learn in an useful way.
+
+![Not even overfitting](/blog_img_and_results/not_even_overfitting.png)
+
+### Learning rates
+- Different set-ups for learning rates were tried (learning rate for the discriminator often smaller than generator's learning rate)
+- I added learning rate annealing : at each epoch, the learning rates for both generator and discriminator were set to 0.99\*previous_learning_rate
+
+### Activation functions
+
+For the last activation function of the generator, I tried using 
+- No activation function
+- Sigmoid (since it's bounded between 0 and 1)
+- Tanh (since it's still bounded)
+- Custom activation : clip each pixel value beetween 0-1 (with an added term in the loss function MSE(before clip, after clip) in order to avoid saturating all the pixels)
+
+But that didn't help. I also tried using no activation function for the discriminator (instead of the usual sigmoid activaiton for binary classification), since the value of the adversarial loss is based on the difference between prediction_true_image and prediction_fake_image. However, my discriminator almost always predict the fake images as true ones. By doing so, the generator doesn't get any gradient from the adversarial term in his loss, and the discriminator is stuck in a loss near 0 (since prediction_true_image ~= prediction_fake_image ~= 1)
+
+### Optimization algorithm
+- Since the beginning, I had my experiments running with Adam optimizer. I tried with RMSprop instead on a really small dataset (about 500 images), and it didn't even overfit on that dataset (as you can see in the image below)
+- I also try addind Nesterov momentum, but that didn't help neither
+
+However, these are the results for some of the first epochs on that small dataset:
+
+Epoch 0 : It seems that the adversarial term helps the generator (since the generated inpainting is not blurry)
+![RMSprop 0](/blog_img_and_results/rms_0.png)
+Epoch 1 :
+![RMSprop 1](/blog_img_and_results/rms_1.png)
+Epoch 2 :
+![RMSprop 2](/blog_img_and_results/rms_2.png)
+Epoch 3 : Saturating pixels (maybe because of the clip activation)
+![RMSprop 3](/blog_img_and_results/rms_3.png)
+Epoch 4 :
+![RMSprop 4](/blog_img_and_results/rms_4.png)
+Epoch 5 :
+![RMSprop 5](/blog_img_and_results/rms_5.png)
+Epoch 6 :
+![RMSprop 6](/blog_img_and_results/rms_6.png)
+Epoch 7 : It seems the generator predict inpainting but not totally related to the contour.
+![RMSprop 7](/blog_img_and_results/rms_7.png)
+
 # April 27th : W-gan without captions, checkerboard artefacts
 
 Here is what happen in training (for a small subset of 500\*1000 images from the training set) for a few epochs : 

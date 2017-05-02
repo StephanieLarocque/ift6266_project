@@ -4,4 +4,4 @@ source ~/.bashrc
 export THEANO_FLAGS='device=gpu'
 export PYTHONUNBUFFERED=1
 echo Running on $HOSTNAME
-python train_autoencoder_adversarial_wgan_rmsprop.py
+python train_CNNgener_caps_wgan.py

@@ -85,16 +85,10 @@ Epoch 0 : It seems that the adversarial term helps the generator (since the gene
 ![RMSprop 0](/blog_img_and_results/rms_0.png)
 Epoch 1 :
 ![RMSprop 1](/blog_img_and_results/rms_1.png)
-Epoch 2 :
-![RMSprop 2](/blog_img_and_results/rms_2.png)
 Epoch 3 : Saturating pixels (maybe because of the clip activation)
 ![RMSprop 3](/blog_img_and_results/rms_3.png)
-Epoch 4 :
-![RMSprop 4](/blog_img_and_results/rms_4.png)
 Epoch 5 :
 ![RMSprop 5](/blog_img_and_results/rms_5.png)
-Epoch 6 :
-![RMSprop 6](/blog_img_and_results/rms_6.png)
 Epoch 7 : It seems the generator predict inpainting but not totally related to the contour.
 ![RMSprop 7](/blog_img_and_results/rms_7.png)
 
@@ -110,8 +104,6 @@ Epoch 1 : All white (happens a often, sometimes becomes white again before resta
 ![w-gan epoch 1](/blog_img_and_results/auto_wgan_ep1.png)
 Epoch 2 : Noise
 ![w-gan epoch 2](/blog_img_and_results/auto_wgan_ep2.png)
-Epoch 3
-![w-gan epoch 3](h/blog_img_and_results/auto_wgan_ep3.png)
 Epoch 4 
 ![w-gan epoch 4](/blog_img_and_results/auto_wgan_ep4.png)
 Epoch 5 : Almost all brown
@@ -120,8 +112,6 @@ Epoch 6 : Learning luminosity near the border
 ![w-gan epoch 6](/blog_img_and_results/auto_wgan_ep6.png)
 Epoch 7 : Still learning how much luminosity there is, also some checkerboard artefacts
 ![w-gan epoch 7](/blog_img_and_results/auto_wgan_ep7.png)
-Epoch 8
-![w-gan epoch 8](/blog_img_and_results/auto_wgan_ep8.png)
 Epoch 9 : A lot of checkerboard artefacts
 ![w-gan epoch 9](/blog_img_and_results/auto_wgan_ep9.png)
 Epoch 10 : And then back to 1 color, but with details

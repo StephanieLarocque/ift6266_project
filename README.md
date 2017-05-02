@@ -50,6 +50,19 @@ I used the dataset loader and the caption preprocessing from Francis Dutil. I ha
 
 ### Papers
 
+- Generative adversarial networks [pdf](https://arxiv.org/pdf/1406.2661.pdf)
+- Wasserstein GAN [pdf](https://arxiv.org/pdf/1701.07875.pdf)
+- Generating Images from Captions with Attention [pdf](https://arxiv.org/pdf/1511.02793.pdf)
+- Generative Adversarial Text to Image Synthesis [pdf](https://arxiv.org/pdf/1605.05396.pdf)
+- Context Encoders: Feature Learning by Inpainting [pdf](https://arxiv.org/pdf/1604.07379.pdf)
+- Unsupervised Representation Learning with Deep Convolutional Geneartive Adversarial Networks [pdf](https://arxiv.org/pdf/1511.06434.pdf)
+- NIPS 2016 Tutorial: Generative Adversarial Networks [pdf](https://arxiv.org/pdf/1701.00160.pdf)
+- Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift [pdf](https://arxiv.org/pdf/1502.03167.pdf)
+- Conditional Image Generation with PixelCNN Decoders [pdf](https://arxiv.org/pdf/1606.05328.pdf)
+- Densely Connected Convolutional Networks [pdf](https://arxiv.org/pdf/1608.06993.pdf)
+- Deep Learning Book [website](http://www.deeplearningbook.org/)
+
+
 TODO : link useful papers I used
 
 

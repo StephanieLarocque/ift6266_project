@@ -98,29 +98,37 @@ Here is what happen in training (for a small subset of 500\*1000 images from the
 
 These are random samples from the last minibatch of the specified epoch.
 
-Epoch 0 : Random color
+### Epoch 0 : Random color
 ![w-gan epoch 0](/blog_img_and_results/auto_wgan_ep0.png)
-Epoch 1 : All white (happens a often, sometimes becomes white again before restarting to learn useful stuff)
+
+### Epoch 1 : All white (happens a often, sometimes becomes white again before restarting to learn useful stuff)
 ![w-gan epoch 1](/blog_img_and_results/auto_wgan_ep1.png)
-Epoch 2 : Noise
+
+### Epoch 2 : Noise
 ![w-gan epoch 2](/blog_img_and_results/auto_wgan_ep2.png)
-Epoch 4 
+
+### Epoch 4 
 ![w-gan epoch 4](/blog_img_and_results/auto_wgan_ep4.png)
-Epoch 5 : Almost all brown
+
+### Epoch 5 : Almost all brown
 ![w-gan epoch 5](/blog_img_and_results/auto_wgan_ep5.png)
-Epoch 6 : Learning luminosity near the border 
+
+### Epoch 6 : Learning luminosity near the border 
 ![w-gan epoch 6](/blog_img_and_results/auto_wgan_ep6.png)
-Epoch 7 : Still learning how much luminosity there is, also some checkerboard artefacts
+
+### Epoch 7 : Still learning how much luminosity there is, also some checkerboard artefacts
 ![w-gan epoch 7](/blog_img_and_results/auto_wgan_ep7.png)
-Epoch 9 : A lot of checkerboard artefacts
-![w-gan epoch 9](/blog_img_and_results/auto_wgan_ep9.png)
-Epoch 10 : And then back to 1 color, but with details
+
+### Epoch 10 : And then back to 1 color, but with details
 ![w-gan epoch 10](/blog_img_and_results/auto_wgan_ep10.png)
-Epoch 11: A lot of checkerboard artefacts
+
+### Epoch 11: A lot of checkerboard artefacts
 ![w-gan epoch 11](/blog_img_and_results/auto_wgan_ep11.png)
-Epoch 12 : Colors seems to match
+
+### Epoch 12 : Colors seems to match
 ![w-gan epoch 12](/blog_img_and_results/auto_wgan_ep12.png)
-Epoch 13 : If we look really fast, does look like a real picture  
+
+### Epoch 13 : If we look really fast, does look like a real picture  
 ![w-gan epoch 13](/blog_img_and_results/auto_wgan_ep13.png)
 
 

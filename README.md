@@ -5,7 +5,7 @@ Blog link : https://stephanielarocque.github.io/ift6266_project/
 
 # April 30th : Summary of my work
 
-Sadly enough, I achieved my better results with y basic CNN network (as presented in April 15th blog post). Those results were blurry (probably because of the L2 reconstruction loss), but were still able to match the context and colors.  
+Sadly enough, I achieved my better results with y basic CNN network (as presented in April 15th blog post). Those results were blurry (probably because of the L2 reconstruction loss), but were still able to match the context and colors. However, when the image only represented a simple landscape, the basic CNN network is able to fill the inpainting correctly. 
 
 #### Results from the training set : 
 ![Training best CNN](blog_img_and_results/train_[2,2,2]_0.005_32_500.png)

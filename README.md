@@ -7,10 +7,10 @@ Blog link : https://stephanielarocque.github.io/ift6266_project/
 
 Sadly enough, I achieved my better results with y basic CNN network (as presented in April 15th blog post). Those results were blurry (probably because of the L2 reconstruction loss), but were still able to match the context and colors.  
 
-### Results from the training set : 
+#### Results from the training set : 
 ![Training best CNN](blog_img_and_results/train_[2,2,2]_0.005_32_500.png)
 
-### Results from the validation set : 
+#### Results from the validation set : 
 ![Validation best CNN](blog_img_and_results/valid_[2,2,2]_0.005_32_500.png)
 
 TODO : put error plot
@@ -50,7 +50,21 @@ I used the dataset loader and the caption preprocessing from Francis Dutil. I ha
 
 ### Papers
 
-TODO : link useful papers I used
+- Generative adversarial networks [pdf](https://arxiv.org/pdf/1406.2661.pdf)
+- Wasserstein GAN [pdf](https://arxiv.org/pdf/1701.07875.pdf)
+- Generating Images from Captions with Attention [pdf](https://arxiv.org/pdf/1511.02793.pdf)
+- Generative Adversarial Text to Image Synthesis [pdf](https://arxiv.org/pdf/1605.05396.pdf)
+- Context Encoders: Feature Learning by Inpainting [pdf](https://arxiv.org/pdf/1604.07379.pdf)
+- Unsupervised Representation Learning with Deep Convolutional Geneartive Adversarial Networks [pdf](https://arxiv.org/pdf/1511.06434.pdf)
+- NIPS 2016 Tutorial: Generative Adversarial Networks [pdf](https://arxiv.org/pdf/1701.00160.pdf)
+- Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift [pdf](https://arxiv.org/pdf/1502.03167.pdf)
+- Conditional Image Generation with PixelCNN Decoders [pdf](https://arxiv.org/pdf/1606.05328.pdf)
+- Densely Connected Convolutional Networks [pdf](https://arxiv.org/pdf/1608.06993.pdf)
+- Deep Learning Book [website](http://www.deeplearningbook.org/)
+
+### If I want to continue...
+- First step must be to find the bug in my code that stops me from using GANs. I talked with other people in the lab, and they didn't have all the problems I had by training GANs, so my guess is that there are some bugs that I could not find in my GAN inplementation.
+- Use a better embedding for captions (a more useful embedding)
 
 
 
@@ -85,16 +99,10 @@ Epoch 0 : It seems that the adversarial term helps the generator (since the gene
 ![RMSprop 0](/blog_img_and_results/rms_0.png)
 Epoch 1 :
 ![RMSprop 1](/blog_img_and_results/rms_1.png)
-Epoch 2 :
-![RMSprop 2](/blog_img_and_results/rms_2.png)
 Epoch 3 : Saturating pixels (maybe because of the clip activation)
 ![RMSprop 3](/blog_img_and_results/rms_3.png)
-Epoch 4 :
-![RMSprop 4](/blog_img_and_results/rms_4.png)
 Epoch 5 :
 ![RMSprop 5](/blog_img_and_results/rms_5.png)
-Epoch 6 :
-![RMSprop 6](/blog_img_and_results/rms_6.png)
 Epoch 7 : It seems the generator predict inpainting but not totally related to the contour.
 ![RMSprop 7](/blog_img_and_results/rms_7.png)
 
@@ -104,33 +112,25 @@ Here is what happen in training (for a small subset of 500\*1000 images from the
 
 These are random samples from the last minibatch of the specified epoch.
 
-Epoch 0 : Random color
+#### Epoch 0 : Random color
 ![w-gan epoch 0](/blog_img_and_results/auto_wgan_ep0.png)
-Epoch 1 : All white (happens a often, sometimes becomes white again before restarting to learn useful stuff)
+
+#### Epoch 1 : All white (happens a often, sometimes becomes white again before restarting to learn useful stuff)
 ![w-gan epoch 1](/blog_img_and_results/auto_wgan_ep1.png)
-Epoch 2 : Noise
+
+#### Epoch 2 : Noise
 ![w-gan epoch 2](/blog_img_and_results/auto_wgan_ep2.png)
-Epoch 3
-![w-gan epoch 3](h/blog_img_and_results/auto_wgan_ep3.png)
-Epoch 4 
+
+#### Epoch 4 
 ![w-gan epoch 4](/blog_img_and_results/auto_wgan_ep4.png)
-Epoch 5 : Almost all brown
+
+#### Epoch 5 : Almost all brown
 ![w-gan epoch 5](/blog_img_and_results/auto_wgan_ep5.png)
-Epoch 6 : Learning luminosity near the border 
-![w-gan epoch 6](/blog_img_and_results/auto_wgan_ep6.png)
-Epoch 7 : Still learning how much luminosity there is, also some checkerboard artefacts
+
+#### Epoch 7 : Learning luminosity near the border, also some checkerboard artefacts
 ![w-gan epoch 7](/blog_img_and_results/auto_wgan_ep7.png)
-Epoch 8
-![w-gan epoch 8](/blog_img_and_results/auto_wgan_ep8.png)
-Epoch 9 : A lot of checkerboard artefacts
-![w-gan epoch 9](/blog_img_and_results/auto_wgan_ep9.png)
-Epoch 10 : And then back to 1 color, but with details
-![w-gan epoch 10](/blog_img_and_results/auto_wgan_ep10.png)
-Epoch 11: A lot of checkerboard artefacts
-![w-gan epoch 11](/blog_img_and_results/auto_wgan_ep11.png)
-Epoch 12 : Colors seems to match
-![w-gan epoch 12](/blog_img_and_results/auto_wgan_ep12.png)
-Epoch 13 : If we look really fast, does look like a real picture  
+
+#### Epoch 13 : If we look really really fast, does look like a real picture  
 ![w-gan epoch 13](/blog_img_and_results/auto_wgan_ep13.png)
 
 

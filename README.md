@@ -349,9 +349,13 @@ This architecture (for no/1/5 caps) had a learning rate = 0.01, no weight decay,
 
 5 captions :
 ![5caps](/blog_img_and_results/5caps_lr0.01_conv[2,2,2]_nfilt32_code750.png)
+
+![caps error plot](/blog_img_and_results/caps_error.png)
 This architecture (for 1/5 caps) had a learning rate = 0.01, no weight decay, 3 blocks of convolution+pooling, 32 filters at the beginning of the network (double at each pooling layer) and a latent code of 750 units.
 
 From these last results, it seems like 1 caption help more than 5 captions. Is it me or is it a zebra shadow?
+
+
 
 
 Multiple architecture were tested, including a change in the learning rate, in the latent code size, in the number of convolutions, in the size of the filters, etc. However, the results looks pretty much all the same and achieve their best results around the 20th epoch.

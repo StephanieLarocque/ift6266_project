@@ -21,8 +21,8 @@ from lasagne.objectives import binary_crossentropy
 from lasagne.nonlinearities import tanh
 
 from iterator import Iterator
-import autoencoder_model as ae_model
-import models_v4 as gan_model
+import cnn_model as ae_model
+import gan_model as gan_model
 
 import PIL.Image as Image
 from matplotlib import pyplot as plt

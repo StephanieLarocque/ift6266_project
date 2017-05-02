@@ -21,7 +21,7 @@ from lasagne.regularization import regularize_network_params
 from lasagne.objectives import binary_crossentropy
 
 from iterator import Iterator
-import autoencoder_model as ae_model
+import cnn_model as ae_model
 
 import PIL.Image as Image
 from matplotlib import pyplot as plt
@@ -40,7 +40,7 @@ weight_decay = 0
 num_epochs = 500
 max_patience = 100
 #data_augmentation={}
-SAVEPATH = 'save_models' 
+SAVEPATH = 'save_models'
 LOADPATH = 'load_models'
 batch_size = 512
 extract_center = True
@@ -49,7 +49,7 @@ load_caption = True
 
 #Model Hyperparameters
 conv_before_pool=[2,2]
-n_filters = 32                      
+n_filters = 32
 code_size = 500
 filter_size = 3
 pool_factor = 2
@@ -91,20 +91,20 @@ print 'Loading directory : '+ loadpath
 # In[4]:
 
 def load_dataset(batch_size, extract_center, load_caption):
-    
 
-    print "Loading training data..." 
+
+    print "Loading training data..."
     train_iter = Iterator(which_set='train', batch_size = batch_size,
                 extract_center = extract_center, load_caption = load_caption)
 
-    print "Loading validation data..." 
+    print "Loading validation data..."
     valid_iter = Iterator(which_set='valid', batch_size = batch_size,
                 extract_center = extract_center, load_caption = load_caption)
-    
+
     test_iter = None
-    
+
     return train_iter, valid_iter, test_iter
-    
+
 
 
 # In[5]:
@@ -139,7 +139,7 @@ ae_input_var = T.tensor4('input img bx3x32x32')
 ae_captions_var = T.matrix('captions var')
 
 model = ae_model.AE_contour2center_captions()
-model.build_network(input_var=ae_input_var,  
+model.build_network(input_var=ae_input_var,
                     captions_var=ae_captions_var,
                     conv_before_pool=conv_before_pool,
                     n_filters = n_filters,
@@ -188,37 +188,37 @@ print "Start training"
 
 for epoch in range(num_epochs):
     #learn_step.set_value((learn_step.get_value()*0.99).astype(theano.config.floatX))
-    
+
     start_time = time.time()
     cost_train_epoch = 0
-    
-    # Train      
-        
+
+    # Train
+
     for i, train_batch in enumerate(train_iter):
         #print i
         if n_batches_train > 0 and i> n_batches_train:
             break
-        
+
         #print np.shape(train_batch[0])
-        
+
         train_batch = model.extract_batch(train_batch)
         #print np.shape(train_batch[0])
         inputs_train, targets_train, caps_train = train_batch
-        
+
         cost_train_batch = model.train_fn(inputs_train, caps_train, targets_train)
-        
-        #Update epoch results    
+
+        #Update epoch results
         cost_train_epoch += cost_train_batch
-    #Add epoch results    
+    #Add epoch results
     err_train += [cost_train_epoch/n_batches_train]
-    
+
 
     # Validation
     cost_val_epoch = 0
-    
+
 
     for i, valid_batch in enumerate(valid_iter):
-        
+
         if n_batches_valid > 0 and i> n_batches_valid:
             break
 
@@ -232,11 +232,11 @@ for epoch in range(num_epochs):
 
         #Update epoch results
         cost_val_epoch += cost_val_batch
-        
-       
-    #Add epoch results 
+
+
+    #Add epoch results
     err_valid += [cost_val_epoch/n_batches_valid]
-    
+
 
     #Print results (once per epoch)
     out_str = "EPOCH %i: Avg cost train %f, cost val %f, took %f s"
@@ -246,14 +246,14 @@ for epoch in range(num_epochs):
                          #acc_valid[epoch],
                          time.time()-start_time)
     print out_str
-   
-    
+
+
 
     # Early stopping and saving stuff
-    
+
     with open(os.path.join(savepath, "ae_output.log"), "a") as f:
         f.write(out_str + "\n")
-        
+
     if epoch == 0 and reset_best_results:
         best_err_valid = err_valid[epoch]
     elif epoch > 1 and err_valid[epoch] < best_err_valid:
@@ -269,12 +269,10 @@ for epoch in range(num_epochs):
         print('saving last model')
         np.savez(os.path.join(savepath, 'ae_model_last.npz'),*lasagne.layers.get_all_param_values(model.net))
         np.savez(os.path.join(savepath , "ae_errors_last.npz"),err_train=err_train, err_valid=err_valid)
-        
+
     # Finish training if patience has expired or max nber of epochs reached
     if patience == max_patience or epoch == num_epochs-1:
         if savepath != loadpath:
             print('Copying model and other training files to {}'.format(loadpath))
             copy_tree(savepath, loadpath)
-        break 
-
-
+        break

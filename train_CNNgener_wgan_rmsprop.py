@@ -21,8 +21,8 @@ from lasagne.regularization import regularize_network_params
 from lasagne.objectives import binary_crossentropy
 
 from iterator import Iterator
-import autoencoder_model as ae_model
-import models_v4 as gan_model
+import cnn_model as ae_model
+import gan_model as gan_model
 
 import PIL.Image as Image
 from matplotlib import pyplot as plt
@@ -39,7 +39,7 @@ _FLOATX = config.floatX
 weight_decay = 0
 num_epochs = 500
 max_patience = 100
-SAVEPATH = 'save_models' 
+SAVEPATH = 'save_models'
 LOADPATH = 'load_models'
 batch_size = 250
 extract_center = True
@@ -48,7 +48,7 @@ load_caption = False
 
 #Model Hyperparameters
 conv_before_pool=[2,2,2]
-n_filters = 32                      
+n_filters = 32
 code_size = 500
 filter_size = 3
 pool_factor = 2
@@ -170,7 +170,7 @@ print 'Done'
 # In[14]:
 
 D = gan_model.discriminator()
-D.build_network(input_var = ae_target_var, contour_var = ae_input_var, 
+D.build_network(input_var = ae_target_var, contour_var = ae_input_var,
                 all_image = all_image, conv_before_pool = [2,2,2,2])
 
 D_over_G = gan_model.discriminator_over_generator()
@@ -316,54 +316,54 @@ print "Start training"
 for epoch in range(num_epochs):
     learning_rate_gen.set_value((learning_rate_gen.get_value()*0.99).astype(theano.config.floatX))
     learning_rate_discr.set_value((learning_rate_discr.get_value()*0.99).astype(theano.config.floatX))
-    
-    
+
+
     start_time = time.time()
     cost_train_epoch = 0
     cost_D_epoch = 0
-    
-    # Train      
-        
+
+    # Train
+
     for i, train_batch in enumerate(train_iter):
-        
+
         if subset_train > 0 and i>= subset_train:
             break
-          
+
         train_batch = model.extract_batch(train_batch)
         inputs_train, targets_train, caps_train = train_batch
-        
- 
-        
-        cost_D_batch = D.train_fn(inputs_train, targets_train)
-        cost_D_epoch += cost_D_batch  
-        
 
-  
+
+
+        cost_D_batch = D.train_fn(inputs_train, targets_train)
+        cost_D_epoch += cost_D_batch
+
+
+
         all_params = lasagne.layers.get_all_param_values(D.net, trainable=True)
         n_params = len(all_params)
         new_params = np.array([np.clip(all_params[j], -clip_treshold, clip_treshold) for j in range(n_params)])
 
 
         lasagne.layers.set_all_param_values(D.net, new_params, trainable=True)
-        
+
         cost_train_batch = model.train_fn(inputs_train, targets_train)
         cost_train_epoch += cost_train_batch
-         
-    #Add epoch results    
+
+    #Add epoch results
     err_train += [cost_train_epoch/subset_train]
-    
+
     err_D_train += [cost_D_epoch/subset_train]
-    
-    
+
+
 
     # Validation
     cost_val_epoch = 0
-    
+
     for i, valid_batch in enumerate(valid_iter):
-        
+
         if subset_valid > 0 and i> subset_valid:
             break
-            
+
         valid_batch = model.extract_batch(valid_batch)
         inputs_valid, targets_valid, caps_valid = valid_batch
 
@@ -374,10 +374,10 @@ for epoch in range(num_epochs):
 
 #         #Update epoch results
         cost_val_epoch += cost_val_batch
-         
-    #Add epoch results 
+
+    #Add epoch results
     err_valid += [cost_val_epoch/n_batches_valid]
-    
+
 
     #Print results (once per epoch)
     out_str = "EPOCH %i: Avg cost train %f, cost discr train %f, cost val %f, took %f s"
@@ -389,10 +389,10 @@ for epoch in range(num_epochs):
 
 
 #     Early stopping and saving stuff
-    
+
     with open(os.path.join(savepath, "ae_output.log"), "a") as f:
         f.write(out_str + "\n")
-        
+
     if epoch == 0 and reset_best_results:
         best_err_valid = err_valid[epoch]
     elif epoch > 1 and err_valid[epoch] < best_err_valid:
@@ -403,21 +403,20 @@ for epoch in range(num_epochs):
         np.savez(os.path.join(savepath , "ae_errors_best.npz"), err_train=err_train, err_valid=err_valid)
         np.savez(os.path.join(savepath, 'ae_model_last.npz'), *lasagne.layers.get_all_param_values(model.net))
         np.savez(os.path.join(savepath , "ae_errors_last.npz"), err_train=err_train, err_valid=err_valid)
-        
+
         np.savez(os.path.join(savepath, 'D_model_best.npz'),*lasagne.layers.get_all_param_values(D.net))
         np.savez(os.path.join(savepath, 'D_model_last.npz'), *lasagne.layers.get_all_param_values(D.net))
-        
+
     else:
         patience += 1
         print('saving last model')
         np.savez(os.path.join(savepath, 'ae_model_last.npz'), *lasagne.layers.get_all_param_values(model.net))
         np.savez(os.path.join(savepath, 'D_model_last.npz'), *lasagne.layers.get_all_param_values(D.net))
         np.savez(os.path.join(savepath , "ae_errors_last.npz"), err_train=err_train, err_valid=err_valid)
-        
+
     # Finish training if patience has expired or max nber of epochs reached
     if patience == max_patience or epoch == num_epochs-1:
         if savepath != loadpath:
             print('Copying model and other training files to {}'.format(loadpath))
             copy_tree(savepath, loadpath)
-        break 
-
+        break

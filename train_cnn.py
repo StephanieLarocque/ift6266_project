@@ -21,7 +21,7 @@ from lasagne.regularization import regularize_network_params
 from lasagne.objectives import binary_crossentropy
 
 from iterator import Iterator
-import autoencoder_model as ae_model
+import cnn_model as ae_model
 
 import PIL.Image as Image
 from matplotlib import pyplot as plt

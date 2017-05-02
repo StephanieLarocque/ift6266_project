@@ -5,7 +5,98 @@ Blog link : https://stephanielarocque.github.io/ift6266_project/
 
 # April 30th : Summary of my work
 
+Sadly enough, I achieved my better results with y basic CNN network (as presented in April 15th blog post). Those results were blurry (probably because of the L2 reconstruction loss), but were still able to match the context and colors.  
+
+### Results from the training set : 
+![Training best CNN](blog_img_and_results/train_[2,2,2]_0.005_32_500.png)
+
+### Results from the validation set : 
+![Validation best CNN](blog_img_and_results/valid_[2,2,2]_0.005_32_500.png)
+
+TODO : put error plot
+
+This model was composed of a 3 blocks of Convolution+Convolution+Pooling (including batch normalization) in order to recover the context from the 64x64 image, followed by 2 dense layers (one of size 500-- the code, and one to recover the right number of units to perform the upconvolution) and finally 2 blocks of Upsampling+Convolution+Convolution in order to recover a 32x32 image.
+TODO : insert schema
+
+I tried a lot of variants that finally didn't generate better quality images. Here is a very brief summary:
+
+### Captions
+
+I first tried using a bag of words embedding for the captions (1 and 5 captions), but that didn't change the overall quality of the images. To make the captions more useful, I tried better embeddings, first using LSTM and then GRU layers. However, the captions didn't improve the image generation quality. I think using a more deeper architecture for the caption embedding could have help a lot.
+
+
+### Adversarial set-up
+
+In order to obtain less blurry results and more interested inpainting, I tried GANs. Since I had already implemented a GAN network at the beginning of this project (without result), I used that implementation to add a discriminator in top of my conv-deconv CNN network that already produces interesting yet blurry images.  
+
+However, I didn't get to have nice, smooth and full of details images. I tried a LOT of things to improve generator/discriminator efficiency in their own task, without really nice results. Here are some of the variants that I have tried :
+- Use of batch norm (always)
+- Label smoothing (for true image only)
+- Different learning rates
+- Different activation functions for intermediate layer (rely, leaky relu..) and for last layer of the generator (no activation, sigmoid, tanh, clip..)
+- Alternative training for generator/discriminator (more or less)
+- Noise added to true images
+- Different loss functions (not saturating game)
+- Whole image instead of just the inpainting for the discriminator
+- Pretraining the generator
+- WGAN with all the above variants tested
+
+Unfortunately, I didn't get the results I expected
+
+
+### Acknowledgements
+
+I used the dataset loader and the caption preprocessing from Francis Dutil. I had also interesting discussions with him and other people  in the lab, including Sandeep and people outside Deep Learning course.
+
+### Papers
+
+TODO : link useful papers I used
+
+
+
+
 # April 28th : Other investigations with W-GAN
+
+Since my model wasn't even able to overfit a small subset (like you can see in the picture below), I tried a bunch of other variants to find a set-up where the generator/discriminator could both learn in an useful way.
+
+![Not even overfitting](/blog_img_and_results/not_even_overfitting.png)
+
+### Learning rates
+- Different set-ups for learning rates were tried (learning rate for the discriminator often smaller than generator's learning rate)
+- I added learning rate annealing : at each epoch, the learning rates for both generator and discriminator were set to 0.99\*previous_learning_rate
+
+### Activation functions
+
+For the last activation function of the generator, I tried using 
+- No activation function
+- Sigmoid (since it's bounded between 0 and 1)
+- Tanh (since it's still bounded)
+- Custom activation : clip each pixel value beetween 0-1 (with an added term in the loss function MSE(before clip, after clip) in order to avoid saturating all the pixels)
+
+But that didn't help. I also tried using no activation function for the discriminator (instead of the usual sigmoid activaiton for binary classification), since the value of the adversarial loss is based on the difference between prediction_true_image and prediction_fake_image. However, my discriminator almost always predict the fake images as true ones. By doing so, the generator doesn't get any gradient from the adversarial term in his loss, and the discriminator is stuck in a loss near 0 (since prediction_true_image ~= prediction_fake_image ~= 1)
+
+### Optimization algorithm
+- Since the beginning, I had my experiments running with Adam optimizer. I tried with RMSprop instead on a really small dataset (about 500 images), and it didn't even overfit on that dataset (as you can see in the image below)
+- I also try addind Nesterov momentum, but that didn't help neither
+
+However, these are the results for some of the first epochs on that small dataset:
+
+Epoch 0 : It seems that the adversarial term helps the generator (since the generated inpainting is not blurry)
+![RMSprop 0](/blog_img_and_results/rms_0.png)
+Epoch 1 :
+![RMSprop 1](/blog_img_and_results/rms_1.png)
+Epoch 2 :
+![RMSprop 2](/blog_img_and_results/rms_2.png)
+Epoch 3 : Saturating pixels (maybe because of the clip activation)
+![RMSprop 3](/blog_img_and_results/rms_3.png)
+Epoch 4 :
+![RMSprop 4](/blog_img_and_results/rms_4.png)
+Epoch 5 :
+![RMSprop 5](/blog_img_and_results/rms_5.png)
+Epoch 6 :
+![RMSprop 6](/blog_img_and_results/rms_6.png)
+Epoch 7 : It seems the generator predict inpainting but not totally related to the contour.
+![RMSprop 7](/blog_img_and_results/rms_7.png)
 
 # April 27th : W-gan without captions, checkerboard artefacts
 

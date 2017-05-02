@@ -7,10 +7,10 @@ Blog link : https://stephanielarocque.github.io/ift6266_project/
 
 Sadly enough, I achieved my better results with y basic CNN network (as presented in April 15th blog post). Those results were blurry (probably because of the L2 reconstruction loss), but were still able to match the context and colors.  
 
-### Results from the training set : 
+#### Results from the training set : 
 ![Training best CNN](blog_img_and_results/train_[2,2,2]_0.005_32_500.png)
 
-### Results from the validation set : 
+#### Results from the validation set : 
 ![Validation best CNN](blog_img_and_results/valid_[2,2,2]_0.005_32_500.png)
 
 TODO : put error plot
@@ -98,25 +98,25 @@ Here is what happen in training (for a small subset of 500\*1000 images from the
 
 These are random samples from the last minibatch of the specified epoch.
 
-### Epoch 0 : Random color
+#### Epoch 0 : Random color
 ![w-gan epoch 0](/blog_img_and_results/auto_wgan_ep0.png)
 
-### Epoch 1 : All white (happens a often, sometimes becomes white again before restarting to learn useful stuff)
+#### Epoch 1 : All white (happens a often, sometimes becomes white again before restarting to learn useful stuff)
 ![w-gan epoch 1](/blog_img_and_results/auto_wgan_ep1.png)
 
-### Epoch 2 : Noise
+#### Epoch 2 : Noise
 ![w-gan epoch 2](/blog_img_and_results/auto_wgan_ep2.png)
 
-### Epoch 4 
+#### Epoch 4 
 ![w-gan epoch 4](/blog_img_and_results/auto_wgan_ep4.png)
 
-### Epoch 5 : Almost all brown
+#### Epoch 5 : Almost all brown
 ![w-gan epoch 5](/blog_img_and_results/auto_wgan_ep5.png)
 
-### Epoch 7 : Learning luminosity near the border, also some checkerboard artefacts
+#### Epoch 7 : Learning luminosity near the border, also some checkerboard artefacts
 ![w-gan epoch 7](/blog_img_and_results/auto_wgan_ep7.png)
 
-### Epoch 13 : If we look really really fast, does look like a real picture  
+#### Epoch 13 : If we look really really fast, does look like a real picture  
 ![w-gan epoch 13](/blog_img_and_results/auto_wgan_ep13.png)
 
 

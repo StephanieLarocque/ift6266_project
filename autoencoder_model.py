@@ -7,7 +7,7 @@ import numpy as np
 from lasagne.layers import InputLayer, DropoutLayer, ReshapeLayer
 from lasagne.layers import BatchNormLayer, batch_norm
 from lasagne.layers import NonlinearityLayer, DimshuffleLayer, ConcatLayer
-from lasagne.layers import Layer
+from lasagne.layers import Layer, EmbeddingLayer, LSTMLayer, GRULayer
 from lasagne.layers import Conv2DLayer
 from lasagne.layers import Deconv2DLayer #same as TransposeConv2DLayer
 from lasagne.layers import Pool2DLayer
@@ -21,6 +21,7 @@ from lasagne.nonlinearities import sigmoid
 from lasagne.nonlinearities import tanh
 
 from matplotlib import pyplot as plt
+import text_utils
 
 
 
@@ -32,34 +33,35 @@ class Model(object):
         raise NotImplementedError
 
 
-    def compile_theano_functions(self, learning_rate = 0.001):
+    def compile_theano_functions(self, learning_rate = 0.001, comp_train=True, comp_valid=True, comp_get=True):
 
-
+        
         input_var = self.input_var#T.tensor4('input img bx3x64x64')
         target_var = T.tensor4('inpainting target')
+        if comp_train:
+            print "Defining and compiling train functions"
 
-        print "Defining and compiling train functions"
+            pred_img = lasagne.layers.get_output(self.net)
+            loss = self.get_loss(pred_img, target_var)
+            params = lasagne.layers.get_all_params(self.net, trainable=True)
+            updates = lasagne.updates.adam(loss, params, learning_rate = learning_rate)
+            train_fn = theano.function([input_var,target_var], loss, updates = updates,
+                                        allow_input_downcast=True)
+            self.train_fn = train_fn
 
-        pred_img = lasagne.layers.get_output(self.net)
-        loss = self.get_loss(pred_img, target_var)
-        params = lasagne.layers.get_all_params(self.net, trainable=True)
-        updates = lasagne.updates.adam(loss, params, learning_rate = learning_rate)
-        train_fn = theano.function([input_var,target_var], loss, updates = updates,
-                                    allow_input_downcast=True)
-        self.train_fn = train_fn
+        if comp_valid:
+            print "Defining and compiling valid functions"
 
+            valid_pred_imgs = lasagne.layers.get_output(self.net,deterministic=True)
+            valid_loss = self.get_loss(valid_pred_imgs, target_var)
+            valid_fn = theano.function([input_var, target_var], valid_loss, allow_input_downcast=True)
+            self.valid_fn = valid_fn
 
-        print "Defining and compiling valid functions"
+        if comp_get:
+            print 'Defining and compiling get_imgs function'
 
-        valid_pred_imgs = lasagne.layers.get_output(self.net,deterministic=True)
-        valid_loss = self.get_loss(valid_pred_imgs, target_var)
-        valid_fn = theano.function([input_var, target_var], valid_loss, allow_input_downcast=True)
-        self.valid_fn = valid_fn
-
-        print 'Defining and compiling get_imgs function'
-
-        self.get_imgs = theano.function([input_var], lasagne.layers.get_output(self.net,deterministic = True),
-                          allow_input_downcast=True)
+            self.get_imgs = theano.function([input_var], lasagne.layers.get_output(self.net,deterministic = True),
+                              allow_input_downcast=True)
         print "Done"
 
 
@@ -96,10 +98,12 @@ class AE_contour2center(Model):
 
     def build_network(self, input_var,
                       conv_before_pool=[2,2],
+                      with_dense_layer = True,
                       n_filters = 32,
                       code_size = 100,
                       filter_size = 3,
-                      pool_factor = 2):
+                      pool_factor = 2,
+                      output_nonlin = tanh):
 
     	self.conv_before_pool = conv_before_pool
     	self.code_size = code_size
@@ -131,23 +135,25 @@ class AE_contour2center(Model):
     	    net['pool'+str(i)] = Pool2DLayer(net[incoming_layer], pool_size = pool_factor)
     	    incoming_layer = 'pool'+str(i)
 
-        #Encoder (Reshape + Dense Layer)
-        net['reshape_enc'] = ReshapeLayer(net[incoming_layer],
-        	shape=([0],-1))
-        incoming_layer = 'reshape_enc'
-        n_units_before_dense = net[incoming_layer].output_shape[1]
+            
+        if with_dense_layer:
+            #Encoder (Reshape + Dense Layer)
+            net['reshape_enc'] = ReshapeLayer(net[incoming_layer],
+                shape=([0],-1))
+            incoming_layer = 'reshape_enc'
+            n_units_before_dense = net[incoming_layer].output_shape[1]
 
-        #Code layer
-        net['code_dense'] = DenseLayer(net[incoming_layer], num_units = code_size)
-        incoming_layer = 'code_dense'
+            #Code layer
+            net['code_dense'] = DenseLayer(net[incoming_layer], num_units = code_size)
+            incoming_layer = 'code_dense'
 
-        #Decoder (Dense + Reshape Layer)
-        net['dense_up'] = DenseLayer(net[incoming_layer], num_units = n_units_before_dense)
-        incoming_layer = 'dense_up'
+            #Decoder (Dense + Reshape Layer)
+            net['dense_up'] = DenseLayer(net[incoming_layer], num_units = n_units_before_dense)
+            incoming_layer = 'dense_up'
 
-        net['reshape_dec'] = ReshapeLayer(net[incoming_layer],
-                shape=([0],-1,n_filters/(2**(n_block-1)), n_filters/(2**(n_block-1)) ))
-        incoming_layer = 'reshape_dec'
+            net['reshape_dec'] = ReshapeLayer(net[incoming_layer],
+                    shape=([0],-1,n_filters/(2**(n_block-1)), n_filters/(2**(n_block-1)) ))
+            incoming_layer = 'reshape_dec'
 
 
         #Decoder (Upscaling + Conv Layers)
@@ -171,11 +177,17 @@ class AE_contour2center(Model):
         net['last_layer'] = Conv2DLayer(net[incoming_layer],
                 num_filters = 3,
                 filter_size = 1,
-                pad='same')
+                pad='same',
+                nonlinearity = None)
         incoming_layer = 'last_layer'
 
+        net['final_nonlin'] = NonlinearityLayer(net[incoming_layer], lambda x:T.clip(x,0,1) )
+        incoming_layer = 'final_nonlin'
+        
 
         self.net = net[incoming_layer]
+        self.dict_net = net
+        return net, incoming_layer
 
 
     def test_and_plot(self, batch, title, subset=15):
@@ -236,18 +248,24 @@ class AE_contour2center_captions(Model):
                       conv_before_pool=[2,2],
                       n_filters = 32,
                       code_size = 100,
+                      emb_size = 100,
+                      cap_code_size =100,
                       filter_size = 3,
                       pool_factor = 2,
+                      emb_type= 'one_hot',
                       output_nonlin = tanh,
                       all_caps = True):
 
     	self.conv_before_pool = conv_before_pool
     	self.code_size = code_size
+        self.emb_size = emb_size
+        self.cap_code_size = cap_code_size
     	self.n_filters = n_filters
     	self.all_caps = all_caps
         self.output_nonlin = output_nonlin
         self.input_var = input_var
         self.captions_var = captions_var
+        self.emb_type = emb_type
 
     	n_block = len(conv_before_pool)
 
@@ -257,11 +275,25 @@ class AE_contour2center_captions(Model):
     	net={}
 
         #35629 words in worddict.pkl
-        net['captions_input'] = InputLayer((None, 7576), captions_var)
-        net['captions_code'] = DenseLayer(net['captions_input'], 100)
-
-
-    	#Input var = whole image with center removed
+       
+        vocab_size = 7576
+        
+        
+        if emb_type=='one_hot':
+            net['captions_input'] = InputLayer((None, vocab_size), captions_var)
+            net['captions_code'] = DenseLayer(net['captions_input'], cap_code_size)
+        elif emb_type =='lstm':
+            net['captions_input'] = InputLayer((None,None), captions_var)
+            net['embed_layer'] = EmbeddingLayer(net['captions_input'], vocab_size, emb_size)
+            net['captions_code'] = LSTMLayer(net['embed_layer'], num_units = cap_code_size, only_return_final = True)
+        elif emb_type =='gru':
+            net['captions_input'] = InputLayer((None,None), captions_var)
+            net['embed_layer'] = EmbeddingLayer(net['captions_input'], vocab_size, emb_size)
+            net['captions_code'] = GRULayer(net['embed_layer'], num_units = cap_code_size, only_return_final = True)
+            
+            
+            
+        #Input var = whole image with center removed
     	net['input'] = InputLayer((None, 3, 64, 64), input_var)
     	incoming_layer = 'input'
 
@@ -404,14 +436,28 @@ class AE_contour2center_captions(Model):
                         caps_i_onehot[0][word] = 1.0
                     caps_onehot[i] = np.array(caps_i_onehot[0])
             return caps_onehot
+        def random_1_cap(caps):
+            #print 'random!'
+            n_samples = np.shape(caps)[0]
+            caps_id = np.random.randint(5, size =n_samples)
+            #print 'caps_id', caps_id
+            one_cap = [ caps[i][caps_id[i]] for i in range(n_samples)]
+            return text_utils.pad_to_the_max(one_cap)
+            #print 'all 5 caps', caps[3]
+            #print 'one cap', one_cap[3]
+            #print np.shape(one_cap)
+            
 
         inputs, targets, caps = batch
 
         inputs = np.transpose(inputs, (0,3,1,2))
         targets = np.transpose(targets, (0,3,1,2))
-        caps_1hot =one_hot_all_captions(caps)
+        if self.emb_type=='one_hot' :
+            caps = one_hot_all_captions(caps)
+        elif self.emb_type=='lstm' or self.emb_type=='gru':
+            caps = random_1_cap(caps)
 
-        return inputs, targets, caps_1hot
+        return inputs, targets, caps
 
 
     def test_and_plot(self, batch, title, subset=15):

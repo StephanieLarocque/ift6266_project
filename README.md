@@ -62,8 +62,9 @@ I used the dataset loader and the caption preprocessing from Francis Dutil. I ha
 - Densely Connected Convolutional Networks [pdf](https://arxiv.org/pdf/1608.06993.pdf)
 - Deep Learning Book [website](http://www.deeplearningbook.org/)
 
-
-TODO : link useful papers I used
+### If I want to continue...
+- First step must be to find the bug in my code that stops me from using GANs. I talked with other people in the lab, and they didn't have all the problems I had by training GANs, so my guess is that there are some bugs that I could not find in my GAN inplementation.
+- Use a better embedding for captions (a more useful embedding)
 
 
 

@@ -27,7 +27,6 @@ import models_v4 as gan_model
 import PIL.Image as Image
 from matplotlib import pyplot as plt
 from matplotlib import colors
-get_ipython().magic(u'matplotlib inline')
 
 
 _FLOATX = config.floatX
@@ -66,14 +65,14 @@ clip_treshold = 0.02
 
 all_image = True #whether to give the whole image or only the center to the discriminator
 
-subset_train = 5
-subset_valid = 5
+subset_train = 100
+subset_valid = 50
 
 
 # In[10]:
 
-learning_rate_gen =  theano.shared(np.array(0.05, dtype=theano.config.floatX))
-learning_rate_discr =  theano.shared(np.array(0.05, dtype=theano.config.floatX))
+learning_rate_gen =  theano.shared(np.array(0.01, dtype=theano.config.floatX))
+learning_rate_discr =  theano.shared(np.array(0.001, dtype=theano.config.floatX))
 
 
 # In[11]:
@@ -82,11 +81,11 @@ learning_rate_discr =  theano.shared(np.array(0.05, dtype=theano.config.floatX))
 # Saving path and stuff
 ######################
 
-exp_name = 'nb_AEwgan_'#+ ('5' if all_caps else '1') + 'caps'
+exp_name = 'nb_AEwgan_rms#+ ('5' if all_caps else '1') + 'caps'
 #exp_name += '_nonlin='+str(output_nonlinD)
 exp_name += '_dense=' + str(with_dense_layer)
-exp_name += '_lrG='+str(learning_rate_gen)
-exp_name += '_lrD='+str(learning_rate_discr)
+exp_name += '_lrG='+str(learning_rate_gen.get_value())
+exp_name += '_lrD='+str(learning_rate_discr.get_value())
 exp_name += '_lambREC=' +str(lambda_rec)
 exp_name += '_lambADV='+str(lambda_adv)
 exp_name += '_clip='+str(clip_treshold)
@@ -227,7 +226,7 @@ model_loss = lambda_rec*rec_loss - lambda_adv*T.mean(D_over_G_predictions) + 0.0
 
 ae_params = lasagne.layers.get_all_params(model.net, trainable=True)
 ae_updates = lasagne.updates.rmsprop(model_loss, ae_params, learning_rate = learning_rate_gen)
-# ae_updates = lasagne.updates.apply_nesterov_momentum(ae_updates, ae_params, momentum = 0.9)
+#ae_updates = lasagne.updates.apply_nesterov_momentum(ae_updates, ae_params, momentum = 0.9)
 model.train_fn = theano.function([ae_input_var, ae_target_var], model_loss, updates = ae_updates,
                             allow_input_downcast=True)
 
@@ -239,6 +238,7 @@ D_loss = - T.mean(D_predictions -D_over_G_predictions)
 
 D_params = lasagne.layers.get_all_params(D.net, trainable=True)
 D_updates = lasagne.updates.rmsprop(D_loss, D_params, learning_rate=learning_rate_discr)
+#D_updates = lasagne.updates.apply_nesterov_momentum(D_updates, D_params, momentum = 0.9)
 D.train_fn = theano.function([ae_input_var, ae_target_var], D_loss, updates=D_updates,
                             allow_input_downcast=True, on_unused_input='warn')
 
@@ -248,30 +248,30 @@ print 'Done'
 
 # In[17]:
 
-# valid_pred_imgs = lasagne.layers.get_output(model.net,deterministic=True)
-# valid_loss = lambda_rec*model.get_loss(valid_pred_imgs, ae_target_var) - lambda_adv*T.mean(lasagne.layers.get_output(D_over_G.net))
+valid_pred_imgs = lasagne.layers.get_output(model.net,deterministic=True)
+valid_loss = lambda_rec*model.get_loss(valid_pred_imgs, ae_target_var) - lambda_adv*T.mean(lasagne.layers.get_output(D_over_G.net))
 
-# valid_fn = theano.function([ae_input_var, ae_target_var], valid_loss, allow_input_downcast=True)
-# model.valid_fn = valid_fn
+valid_fn = theano.function([ae_input_var, ae_target_var], valid_loss, allow_input_downcast=True)
+model.valid_fn = valid_fn
 
 
 # In[18]:
 
-D.get_pred = theano.function([ae_input_var,  ae_target_var], D_predictions, on_unused_input='ignore')
-D_over_G.get_pred = theano.function([ae_input_var, ae_target_var], D_over_G_predictions, on_unused_input='warn')
+#D.get_pred = theano.function([ae_input_var,  ae_target_var], D_predictions, on_unused_input='ignore')
+#D_over_G.get_pred = theano.function([ae_input_var, ae_target_var], D_over_G_predictions, on_unused_input='warn')
 
 
 # In[19]:
 
-model.beforenonlin = theano.function([ae_input_var], lasagne.layers.get_output(model.dict_net['last_layer']))
-model.afternonlin = theano.function([ae_input_var], lasagne.layers.get_output(model.dict_net['final_nonlin']))
+#model.beforenonlin = theano.function([ae_input_var], lasagne.layers.get_output(model.dict_net['last_layer']))
+#model.afternonlin = theano.function([ae_input_var], lasagne.layers.get_output(model.dict_net['final_nonlin']))
 
 
 # In[20]:
 
-D.beforenonlin = theano.function([ae_target_var, ae_input_var], lasagne.layers.get_output(D.dict_net['last_layer']),
-                                on_unused_input='warn')
-D_over_G.beforenonlin = theano.function([ae_input_var], lasagne.layers.get_output(D_over_G.dict_net['last_layer']))
+#D.beforenonlin = theano.function([ae_target_var, ae_input_var], lasagne.layers.get_output(D.dict_net['last_layer']),
+#                                on_unused_input='warn')
+#D_over_G.beforenonlin = theano.function([ae_input_var], lasagne.layers.get_output(D_over_G.dict_net['last_layer']))
 
 
 # In[ ]:
@@ -281,14 +281,8 @@ D_over_G.beforenonlin = theano.function([ae_input_var], lasagne.layers.get_outpu
 
 # In[21]:
 
-plot_results_train = True
-plot_results_valid = True
-
-
-num_epochs = 200
-
-
-# In[22]:
+plot_results_train = False
+plot_results_valid = False
 
 # Initialization
 
@@ -296,28 +290,16 @@ err_train = []
 err_D_train = []
 err_valid = []
 
-patience = 50
 
 reset_best_results = True
-subset_train = 50
-subset_valid = 5
-
-
-# In[ ]:
 
 
 
 
-# In[ ]:
+#learning_rate_gen.set_value(0.001)
+#learning_rate_discr.set_value(0.0001)
 
-
-
-
-# In[ ]:
-
-learning_rate_gen.set_value(0.001)
-learning_rate_discr.set_value(0.0001)
-    
+patience = 0
 
 
 # In[ ]:
@@ -355,23 +337,8 @@ for epoch in range(num_epochs):
         cost_D_batch = D.train_fn(inputs_train, targets_train)
         cost_D_epoch += cost_D_batch  
         
-#         if i%5==0:
-#             print 'difference avant non lin', np.mean(
-#                 D.beforenonlin(targets_train, inputs_train)-D_over_G.beforenonlin(inputs_train) )
 
-            
-        #print 'D cost batch', i, cost_D_batch
-
-        #DG_pred = D_over_G.get_pred(inputs_train,  targets_train)
-        #idx_max = np.argmax(DG_pred)
-        #idx_min = np.argmin(DG_pred)
-        #print 'max', idx_max, DG_pred[idx_max], 'min', idx_min, DG_pred[idx_min]
-        #print 'idx', idx, ' achieved ', DG_pred[idx]
-        #model.compute_and_plot_results((inputs_train[idx:idx+1], targets_train[idx:idx+1], caps_train[idx:idx+1]), title='')
-
-            
-        
-        #clip_treshold = 0.05
+  
         all_params = lasagne.layers.get_all_param_values(D.net, trainable=True)
         n_params = len(all_params)
         new_params = np.array([np.clip(all_params[j], -clip_treshold, clip_treshold) for j in range(n_params)])
@@ -379,37 +346,9 @@ for epoch in range(num_epochs):
 
         lasagne.layers.set_all_param_values(D.net, new_params, trainable=True)
         
-        #print model.beforenonlin(inputs_train)[0][:][32][32]
-        
-        
-        
-        #print 'diff avant G', np.mean(D.get_pred(inputs_train, targets_train) - D_over_G.get_pred(inputs_train, targets_train))
-
         cost_train_batch = model.train_fn(inputs_train, targets_train)
         cost_train_epoch += cost_train_batch
-#             print 'difference avant non lin apres update G', np.mean(
-#                 D.beforenonlin(targets_train, inputs_train)-D_over_G.beforenonlin(inputs_train) )
-            
-
-        #print 'diff apres G', np.mean(D.get_pred(inputs_train, targets_train) - D_over_G.get_pred(inputs_train, targets_train))
-        
-        #print 'ae cost batch ' , cost_train_batch
-        
-        #print 'before' , model.beforenonlin(inputs_train)[0][:,16,16]        
-        #print 'after ' , model.afternonlin(inputs_train)[0][:,16,16]
-        
-     
-    #print 'D pred', D.get_pred(inputs_train, targets_train)[:10]
-    #print 'DG pred ', D_over_G.get_pred(inputs_train,  targets_train)[:10]
-        #if i%5==0:
-    if plot_results_train: #select random example from the last minibatch and plot it
-        model.compute_and_plot_results(train_batch, title='')
-#                 model.compute_and_plot_results((inputs_train[215:230], targets_train[215:230], caps_train[215:230]), 
-#                                                title = '')
-    
-        
-        
-        
+         
     #Add epoch results    
     err_train += [cost_train_epoch/subset_train]
     
@@ -420,28 +359,22 @@ for epoch in range(num_epochs):
     # Validation
     cost_val_epoch = 0
     
-
-#     for i, valid_batch in enumerate(valid_iter):
+    for i, valid_batch in enumerate(valid_iter):
         
-#         if subset_valid > 0 and i> subset_valid:
-#             break
-#         #rint 'valid', i
-
-#         valid_batch = model.extract_batch(valid_batch)
-#         inputs_valid, targets_valid, caps_valid = valid_batch
+        if subset_valid > 0 and i> subset_valid:
+            break
+            
+        valid_batch = model.extract_batch(valid_batch)
+        inputs_valid, targets_valid, caps_valid = valid_batch
 
 #         # Validation step
-#         cost_val_batch = model.valid_fn(inputs_valid, targets_valid)
+        cost_val_batch = model.valid_fn(inputs_valid, targets_valid)
 #         #print i, 'validation batch cost : ', cost_val_batch
 
 
 #         #Update epoch results
-#         cost_val_epoch += cost_val_batch
-        
-    
-#     if plot_results_valid: #select random example from the last minibatch and plot it
-#         model.compute_and_plot_results(valid_batch, title = 'VALID')
-        
+        cost_val_epoch += cost_val_batch
+         
     #Add epoch results 
     err_valid += [cost_val_epoch/n_batches_valid]
     
@@ -453,77 +386,7 @@ for epoch in range(num_epochs):
                          err_valid[epoch],
                          time.time()-start_time)
     print out_str
-   
-    
 
-
-
-
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-
-
-
-# In[64]:
-
-np.min(inputs_train)
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-
-
-
-# # auto_wgan_epi
-# 
-# 
-# - on train subset 50 minibatch of 1000 samples each
-# - 
-
-# - 0.001 with l_adv = 1
-# - 0.001 with l_adv = 5
-# - 0.0001 with l_adv = 5 .. no clipping
-# - added clipping to 0.1
-# - l_adv to 0.05
-# - remove clipping
-# 
-
-# - l_adv = 05, lr_dis = 0.0001, treshcol = 0.05
-# - lr_gen = 0.05
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
 
 #     Early stopping and saving stuff
     
@@ -557,24 +420,4 @@ np.min(inputs_train)
             print('Copying model and other training files to {}'.format(loadpath))
             copy_tree(savepath, loadpath)
         break 
-
-
-# In[52]:
-
-savepath
-
-
-# In[53]:
-
-np.savez(os.path.join(savepath, 'ae_model_best.npz'),*lasagne.layers.get_all_param_values(model.net))
-np.savez(os.path.join(savepath , "ae_errors_best.npz"), err_train=err_train, err_valid=err_valid)
-np.savez(os.path.join(savepath, 'ae_model_last.npz'), *lasagne.layers.get_all_param_values(model.net))
-np.savez(os.path.join(savepath , "ae_errors_last.npz"), err_train=err_train, err_valid=err_valid)
-np.savez(os.path.join(savepath, 'D_model_best.npz'),*lasagne.layers.get_all_param_values(D.net))
-np.savez(os.path.join(savepath, 'D_model_last.npz'), *lasagne.layers.get_all_param_values(D.net))
-
-
-# In[ ]:
-
-
 

@@ -33,7 +33,7 @@ from matplotlib import colors
 
 #Training hyper-parameters
 
-learning_rate = 0.01
+learning_rate = 0.005
 weight_decay = 0
 num_epochs = 500
 max_patience = 100
@@ -46,9 +46,9 @@ load_caption = False
 #nb_discriminator_steps = 2
 
 #Model Hyperparameters
-conv_before_pool=[1,1,1,1]
+conv_before_pool=[2,2]
 n_filters = 32
-code_size =500
+code_size = 500
 filter_size = 3
 pool_factor = 2
 
@@ -130,25 +130,18 @@ ae_target_var = T.tensor4('inpainting target')
 
 
 print('Building AE model')
-ae, last_layer = ae_model.AE_contour2center().build_network(input_var = ae_input_var,
+model = ae_model.AE_contour2center()
+print model
+ae, last_layer = model.build_network(input_var = ae_input_var,
                                               conv_before_pool=conv_before_pool,
-                                                            n_filters = n_filters,filter_size=filter_size,
-                                                            code_size = code_size,pool_factor=pool_factor)
+                                              n_filters = n_filters,
+                                              filter_size=filter_size,
+                                              code_size = code_size,
+                                              pool_factor=pool_factor)
 
 
 
 
-
-# In[29]:
-
-##########################################
-# Build generator and discriminator models
-##########################################
-
-#Print layers and shape (to debug)
-# print 'AE layers'
-# for layer in lasagne.layers.get_all_layers(ae):
-#     print layer, ae[layer].output_shape
 
 
 # In[ ]:
@@ -158,7 +151,7 @@ ae, last_layer = ae_model.AE_contour2center().build_network(input_var = ae_input
 #####################################
 
 print "Defining and compiling theano functions"
-pred_img = lasagne.layers.get_output(ae[last_layer])
+pred_img = lasagne.layers.get_output(model.net)
 
 ae_loss = T.mean(lasagne.objectives.squared_error(pred_img, ae_target_var))
 #TODO : weight decay
@@ -168,7 +161,7 @@ ae_loss = T.mean(lasagne.objectives.squared_error(pred_img, ae_target_var))
 #     ae_loss += weight_decay * weightsl2
 
 
-ae_params = lasagne.layers.get_all_params(ae[last_layer], trainable=True)
+ae_params = lasagne.layers.get_all_params(model.net, trainable=True)
 ae_updates = lasagne.updates.adam(ae_loss, ae_params, learning_rate = learning_rate)
 #discr_acc = $dicriminator accuracy
 ae_train_fn = theano.function([ae_input_var,ae_target_var], ae_loss, updates = ae_updates,
@@ -181,7 +174,7 @@ print 'Done'
 # In[ ]:
 
 print "Defining and compiling valid functions"
-valid_pred_imgs = lasagne.layers.get_output(ae[last_layer],deterministic=True)
+valid_pred_imgs = lasagne.layers.get_output(model.net,deterministic=True)
 
 valid_loss = T.mean(lasagne.objectives.squared_error(valid_pred_imgs, ae_target_var))
 
@@ -193,7 +186,7 @@ print "Done"
 
 
 
-get_imgs = theano.function([ae_input_var], lasagne.layers.get_output(ae[last_layer],deterministic = True),
+get_imgs = theano.function([ae_input_var], lasagne.layers.get_output(model.net,deterministic = True),
                           allow_input_downcast=True)
 
 
@@ -201,12 +194,6 @@ get_imgs = theano.function([ae_input_var], lasagne.layers.get_output(ae[last_lay
 
 # In[ ]:
 
-def extract_stuff(batch):
-    inputs, targets, caps = batch
-    inputs = np.transpose(inputs, (0,3,1,2))
-    targets = np.transpose(targets, (0,3,1,2))
-
-    return inputs, targets, caps
 
 
 
@@ -245,7 +232,7 @@ for epoch in range(num_epochs):
         if n_batches_train > 0 and i> n_batches_train:
             break
 
-        inputs_train, targets_train, caps_train = extract_stuff(train_batch)
+        inputs_train, targets_train, caps_train = model.extract_batch(train_batch)
 
         cost_train_batch = cost_minibatch = ae_train_fn(inputs_train, targets_train)
 
@@ -269,7 +256,7 @@ for epoch in range(num_epochs):
         if n_batches_valid > 0 and i> n_batches_valid:
             break
 
-        inputs_valid, targets_valid, caps_valid = extract_stuff(valid_batch)
+        inputs_valid, targets_valid, caps_valid = model.extract_batch(valid_batch)
 
         # Validation step
         cost_val_batch = ae_valid_fn(inputs_valid, targets_valid)

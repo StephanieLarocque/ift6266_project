@@ -199,6 +199,10 @@ I tried different training set-ups regarding the ratio *number of time generator
 
 ![W-GAN not converging 2](/blog_img_and_results/wgan_not_converging2.png)
 
+![W-GAN not converging 3](/blog_img_and_results/wgan_blurry.png)
+
+![W-GAN not converging 4](/blog_img_and_results/wgan_blurry2.png)
+
 As you can see, it stays a very blurrrrry inpainting. It seems that the reconstruction loss
 
 ### Next steps
@@ -337,6 +341,18 @@ The results looks lot like without captions though.
 5 captions :
 ![5caps](/blog_img_and_results/valid_AE_5capsreal+_lr=0.01_wd=0_bs=512_conv=[1, 1, 1, 1]_nfilt=32_code=500.png)
 This architecture (for no/1/5 caps) had a learning rate = 0.01, no weight decay, 4 block of convolution+pooling, 32 filters at the beginning of the network (double at each pooling layer) and a latent code of 500 units.
+
+
+
+1 caption:
+![1cap](/blog_img_and_results/1caps_lr0.01_conv[2,2,2]_nfilt32_code750.png)
+
+5 captions :
+![5caps](/blog_img_and_results/5caps_lr0.01_conv[2,2,2]_nfilt32_code750.png)
+This architecture (for 1/5 caps) had a learning rate = 0.01, no weight decay, 3 blocks of convolution+pooling, 32 filters at the beginning of the network (double at each pooling layer) and a latent code of 750 units.
+
+From these last results, it seems like 1 caption help more than 5 captions. Is it me or is it a zebra shadow?
+
 
 Multiple architecture were tested, including a change in the learning rate, in the latent code size, in the number of convolutions, in the size of the filters, etc. However, the results looks pretty much all the same and achieve their best results around the 20th epoch.
 

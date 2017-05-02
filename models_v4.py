@@ -54,20 +54,22 @@ class discriminator(Model):
         pass
 
     def build_network(self,
-                input_var,
-                contour_var,
+                input_var, #center de l'image/inpainting
+                contour_var, #contour de l'image
+                all_image = True,
                 conv_before_pool = [2],
                 n_filters = 32,
-                filter_size = 3,
-                n_units_dense_layer = 256,
+                filter_size = 7,
+                #n_units_dense_layer = 256,
                 out_nonlin = sigmoid):
         
         
         self.conv_before_pool = conv_before_pool
         self.n_filters = n_filters
         self.filter_size = filter_size
-        self.n_units_dense_layer = n_units_dense_layer
+        #self.n_units_dense_layer = n_units_dense_layer
         self.out_nonlin = out_nonlin
+        self.all_image = all_image
 
         
         self.contour_var = contour_var
@@ -79,18 +81,18 @@ class discriminator(Model):
         net['input'] = InputLayer((None,3,32,32), input_var)
         incoming_layer = 'input'
         
-        net['noise_to_input'] = GaussianNoiseLayer(net[incoming_layer], sigma=0.1)
-        incoming_layer = 'noise_to_input'
+        #net['noise_to_input'] = GaussianNoiseLayer(net[incoming_layer], sigma=0.1)
+        #incoming_layer = 'noise_to_input'
 
-        
-        net['pad_input'] = PadLayer(net[incoming_layer], width=16, val=0)
-        incoming_layer = 'pad_input'
-        
-        net['contour'] = InputLayer((None, 3, 64, 64), contour_var)
-        incoming_layer ='contour'
-        
-        net['in+out'] = ElemwiseSumLayer([net['pad_input'], net['contour']])
-        incoming_layer = 'in+out'
+        if all_image:
+            net['pad_input'] = PadLayer(net[incoming_layer], width=16, val=0)
+            incoming_layer = 'pad_input'
+
+            net['contour'] = InputLayer((None, 3, 64, 64), contour_var)
+            incoming_layer ='contour'
+
+            net['in+out'] = ElemwiseSumLayer([net['pad_input'], net['contour']])
+            incoming_layer = 'in+out'
         
 
 
@@ -104,8 +106,8 @@ class discriminator(Model):
                 net['conv'+str(i)+'_'+str(c)] = Conv2DLayer(net[incoming_layer],
                             num_filters = n_filters*(2**i),
                             filter_size = filter_size,
-                            pad = 2,
-                            stride = 2,
+                            pad = 'same',
+                            #stride = 2,
                             nonlinearity = None)
                 incoming_layer = 'conv'+str(i)+'_'+str(c)
 
@@ -123,11 +125,10 @@ class discriminator(Model):
 #                net['pool'+str(i)] = Pool2DLayer(net[incoming_layer],
 #                                pool_size = 2, mode = 'average_exc_pad')
 #                incoming_layer = 'pool'+str(i)
+            net['pool'+str(i)] = Pool2DLayer(net[incoming_layer], pool_size=2)
+            incoming_layer = 'pool'+str(i)
 
-#        #Add 1 dense layer
-#        net['dense'] = DenseLayer(net[incoming_layer],
-#                            num_units = n_units_dense_layer)
-#        incoming_layer = 'dense'
+
 
 
         net['flatten']= FlattenLayer(net[incoming_layer])
@@ -136,8 +137,11 @@ class discriminator(Model):
         #Last layer must have 1 units (binary classification)
         net['last_layer'] = DenseLayer(net[incoming_layer],
                             num_units = 1,
-                            nonlinearity = sigmoid)
+                            nonlinearity = None)
         incoming_layer = 'last_layer'
+        
+        #net['final_nonlin'] = NonlinearityLayer(net[incoming_layer], nonlinearity = sigmoid)
+        #incoming_layer = 'final_nonlin'
         
 
 
@@ -164,8 +168,9 @@ class discriminator_over_generator(Model):
         conv_before_pool = D_net.conv_before_pool
         n_filters = D_net.n_filters
         filter_size = D_net.filter_size
-        n_units_dense_layer = D_net.n_units_dense_layer
+        #n_units_dense_layer = D_net.n_units_dense_layer
         out_nonlin = D_net.out_nonlin
+        all_image = D_net.all_image
         
         contour_var = D_net.contour_var
         
@@ -178,14 +183,17 @@ class discriminator_over_generator(Model):
         net['input'] = Pool2DLayer(G_net.net, pool_size=1)
         incoming_layer = 'input'
         
-        net['pad_input'] = PadLayer(net[incoming_layer], width=16, val=0)
-        incoming_layer = 'pad_input'
         
-        net['contour'] = InputLayer((None, 3, 64, 64), contour_var)
-        incoming_layer ='contour'
-        
-        net['in+out'] = ElemwiseSumLayer([net['pad_input'], net['contour']])
-        incoming_layer = 'in+out'
+        if all_image:
+            net['pad_input'] = PadLayer(net[incoming_layer], width=16, val=0)
+            incoming_layer = 'pad_input'
+
+
+            net['contour'] = InputLayer((None, 3, 64, 64), contour_var)
+            incoming_layer ='contour'
+
+            net['in+out'] = ElemwiseSumLayer([net['pad_input'], net['contour']])
+            incoming_layer = 'in+out'
         
         
 
@@ -201,8 +209,8 @@ class discriminator_over_generator(Model):
                 net['conv'+str(i)+'_'+str(c)] = Conv2DLayer(net[incoming_layer],
                             num_filters = n_filters*(2**i),
                             filter_size = filter_size,
-                            pad = 2,
-                            stride = 2,                               
+                            pad = 'same',
+                            #stride = 2,                               
                             W = D_net.dict_net['conv'+str(i)+'_'+str(c)].W,
                             b = D_net.dict_net['conv'+str(i)+'_'+str(c)].b,
                             nonlinearity = None)
@@ -218,6 +226,9 @@ class discriminator_over_generator(Model):
                             net[incoming_layer],
                             nonlinearity = LeakyRectify(0.2))
                 incoming_layer = 'nonlin'+str(i)+'_'+str(c)
+                
+            net['pool'+str(i)] = Pool2DLayer(net[incoming_layer], pool_size=2)
+            incoming_layer = 'pool'+str(i)
 
 
         
@@ -228,31 +239,14 @@ class discriminator_over_generator(Model):
                             num_units = 1,
                             W = D_net.dict_net['last_layer'].W,
                             b = D_net.dict_net['last_layer'].b,
-                            nonlinearity = sigmoid)
+                            nonlinearity=None)
         incoming_layer = 'last_layer'
+        
+        #net['final_nonlin'] = NonlinearityLayer(net[incoming_layer], nonlinearity = sigmoid)
+        #incoming_layer = 'final_nonlin'
         
 
         #Softmax layer needed somehere
         self.net = net[incoming_layer]
         self.dict_net = net
 
-
-
-if __name__=='__main__':
-
-    G_input_var = T.tensor4('G_input')
-    D_input_var = T.tensor4('D_input_true')
-
-
-    GAN = gan(G_input_var, D_input_var)
-
-    print 'generator'
-    print lasagne.layers.get_all_layers(GAN.G)
-    print 'discriminator'
-    print lasagne.layers.get_all_layers(GAN.D)
-    print 'discriminator_over_generator'
-    print lasagne.layers.get_all_layers(GAN.D_over_G)
-
-    #TODO : verifier que les valeurs sont les memes
-    #TODO : doit on reassigne les parametres a D_over_G ou updater
-    #D updatera aussi D_over_G ???
